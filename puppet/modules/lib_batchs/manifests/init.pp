@@ -1,58 +1,53 @@
-class lib_noids( $noid_root = '/opt/noids') {
+class lib_batchs( $batchs_root = '/opt/batchs') {
 
         $pkglist = [ "golang" ]
 
-	class { 'lib_noids::remove_rpm':
-		root => $noid_root,
-	}
-
 	package { $pkglist:
 		ensure => present,
-		require => Class["lib_noids::remove_rpm"],
 	}
 
-        file { [ "$noid_root", "${noid_root}/log" ]:
+        file { [ "$batchs_root", "${batchs_root}/log" ]:
 		ensure => directory,
 		require => Package["$pkglist"],
 	}
 
-	exec { "Build-noids-from-repo":  
-		command => "/bin/bash -c \"export GOPATH=${noid_root} && go get github.com/ndlib/noids\"",	
-		unless => "/usr/bin/test -f ${noid_root}/bin/noids",
-		require => File[$noid_root],
+	exec { "Build-batchs-from-repo":  
+		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get github.com/ndlib/curatend-batch\"",	
+		unless => "/usr/bin/test -f ${batchs_root}/bin/batchs",
+		require => File[$batchs_root],
         }
 
-	file { 'noids.conf':
-		name => '/etc/init/noids.conf',
+	file { 'batchs.conf':
+		name => '/etc/init/batchs.conf',
 		replace => true,
-		content => template('lib_noids/noids.conf.erb'),
-		require => Exec["Build-noids-from-repo"],
+		content => template('lib_batchs/batchs.conf.erb'),
+		require => Exec["Build-batchs-from-repo"],
 	}
 
-	file { 'logrotate.d/noids':
-		name => '/etc/logrotate.d/noids',
+	file { 'logrotate.d/batchs':
+		name => '/etc/logrotate.d/batchs',
 		replace => true,
-		require => File["noids.conf"],
-		content => template('lib_noids/noids.erb'),
+		require => File["batchs.conf"],
+		content => template('lib_batchs/noids.erb'),
 	}
 
-	file { "noids/config.ini":
-		name => "${noid_root}/config.ini",
+	file { "batchs/config.ini":
+		name => "${batchs_root}/config.ini",
 		replace => true,
-		require => File['logrotate.d/noids'], 
-		content => template('lib_noids/config.ini.erb'),
+		require => File['logrotate.d/batchs'], 
+		content => template('lib_batchs/config.ini.erb'),
 	}
 
-        exec { "stop-noids":
-		command => "/sbin/initctl stop noids",
-		unless => "/sbin/initctl status noids | grep stop",
-		require => File[ "noids/config.ini"],
+        exec { "stop-batchs":
+		command => "/sbin/initctl stop batchs",
+		unless => "/sbin/initctl status batchs | grep stop",
+		require => File[ "batchs/config.ini"],
 	}
 
-        exec { "start-noids":
-		command => "/sbin/initctl start noids",
-		unless => "/sbin/initctl status noids | grep process",
-		require => Exec["stop-noids"]
+        exec { "start-batchs":
+		command => "/sbin/initctl start batchs",
+		unless => "/sbin/initctl status batchs | grep process",
+		require => Exec["stop-batchs"]
 	}
 		
 }

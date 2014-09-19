@@ -8,6 +8,7 @@ class lib_curatend-batch() {
 
 include lib_app_home
 include lib_ruby
+include lib_batchs
 
 # app subdirectory for batch
 
@@ -17,7 +18,6 @@ file { "/home/app/curatend-batch":
 	owner => "app",
 	group => "app",
 	require => Class["lib_app_home"],
-
 }
 
 }
