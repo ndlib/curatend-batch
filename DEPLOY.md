@@ -1,4 +1,4 @@
-# Deploying application
+# Deploying the Application
 
 This document describes how the application itself is deployed. It does not
 cover the steps necessary to setup the target system. Deploys to Preproduction
@@ -33,17 +33,7 @@ or
 
     ssh app@libvirt7.library.nd.edu
 
-You will be connected without needing a password (because you gave your public
-key to Mark). The application is deployed to `~/curatend/current`. The logs are
-in `~/curatend/current/logs/staging.log`. There are many logs:
-
-    Rails log: ~app/curatend/current/log/staging.log
-    Unicorn Access log: ~app/curatend/current/log/unicorn.stdout.log
-    Unicorn Error log: ~app/curatend/current/log/unicorn.stderr.log
-    Resque Pool logs: ~app/curatend/current/log/resque-pool.stdout.log
-                      ~app/curatend/current/log/resque-pool.stderr.log
-    Nginx log: /var/log/nginx/access.log
-    Fedora log: /opt/fedora/3.6.1/server/logs/fedora.log
-    Solr log: ?
-
-
+You will be connected without needing a password (because you gave your
+public key to Mark).  The application is deployed to
+`~/curatend-batch/current`.  The overlord application is deployed to
+`/opt/batch-overlord`.  The logs are in `/opt/batch-overlord/logs/log`.
