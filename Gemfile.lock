@@ -16,6 +16,7 @@ GEM
     net-ssh-gateway (1.2.0)
       net-ssh (>= 2.6.5)
     rake (10.3.2)
+    rof (0.0.1.pre)
 
 PLATFORMS
   ruby
@@ -23,3 +24,4 @@ PLATFORMS
 DEPENDENCIES
   capistrano (~> 2)
   rake
+  rof
