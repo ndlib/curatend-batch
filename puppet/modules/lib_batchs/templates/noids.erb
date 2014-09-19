@@ -1,0 +1,11 @@
+<%= @noid_root %>/log/*.log {
+    daily
+    rotate 180
+    missingok
+    notifempty
+    compress
+    sharedscripts
+    postrotate
+        /bin/kill -USR1 $(cat <%= @noid_root %>/noids.pid) 2>/dev/null) 2>/dev/null || :
+    endscript
+}

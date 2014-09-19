@@ -1,6 +1,6 @@
+class lib_curate::standalone {
 
-class lib_curate( $config = "standalone" ) {
-
-class { "lib_curate::$config": }
+include lib_home_app
+include lib_ruby
 
 }
