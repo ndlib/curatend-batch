@@ -141,7 +141,7 @@ set :repository,  "git://github.com/ndlib/curatend-batch.git"
 def common
   # can also set :branch with the :tag variable
   set :branch,    fetch(:branch, fetch(:tag, 'master'))
-  set :deploy_to, '/home/app/curatend'
+  set :deploy_to, '/home/app/curatend-batch'
   set :user,      'app'
   set :bundle_without, [:development, :test, :debug]
 
