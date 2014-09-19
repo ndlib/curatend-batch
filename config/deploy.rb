@@ -151,24 +151,21 @@ def common
   after 'deploy', 'deploy:cleanup'
 end
 
+set    :domain,     fetch(:host, 'libvirt6.library.nd.edu')
+server "app@#{domain}", :app, :work, :web, :db, :primary => true
+common()
+
+# these tasks are here as placeholders.
+# but since the only difference between envrionments is configuration,
+# heira will take care of that.
 desc "Setup for staging VM"
 task :staging do
-  set    :domain,     fetch(:host, 'libvirt6.library.nd.edu')
-  server "app@#{domain}", :app, :work, :web, :db, :primary => true
-  common()
 end
 
 desc "Setup for pre-production deploy"
 task :pre_production do
-  set    :domain,     fetch(:host, 'curatewrkpprd.library.nd.edu')
-  server "app@#{domain}", :app, :work, :web, :db, :primary => true
-  server "app@#{domain}.library.nd.edu", :app, :web, :db, :work, :primary => true
-  common()
 end
 
 desc "Setup for production deploy"
 task :production do
-  set    :domain,     fetch(:host, 'curatewrkprod.library.nd.edu')
-  server "app@#{domain}.library.nd.edu", :app, :web, :db, :work, :primary => true
-  common()
 end
