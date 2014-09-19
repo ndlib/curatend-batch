@@ -1,0 +1,10 @@
+en:
+  activemodel:
+    models:
+      active_fedora/registered_attributes/attribute/something: Something Wicked
+      something: Something Wicked
+    attributes:
+      active_fedora/registered_attributes/attribute/something:
+        internationalized_field: Welcome
+      something:
+        internationalized_field: Welcome

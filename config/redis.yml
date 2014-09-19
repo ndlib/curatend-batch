@@ -1,0 +1,12 @@
+#
+# FYI: This file is replaced by a copy for deploys
+# to ci, pre_production, and production.
+#
+development:
+  host: localhost
+  port: 6379
+test: &TEST
+  host: localhost
+  port: 6379
+ci:
+  <<: *TEST

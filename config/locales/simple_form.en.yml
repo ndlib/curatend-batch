@@ -1,0 +1,37 @@
+en:
+  simple_form:
+    "yes": 'Yes'
+    "no": 'No'
+    required:
+      text: 'required'
+      mark: '*'
+      # You can uncomment the line below if you need to overwrite the whole required html.
+      # When using html, text and mark won't be used.
+      html: '<abbr class="required-indicator" title="Required" data-placement="right">&#9733;</abbr>'
+    error_notification:
+      default_message: "Please review the problems below:"
+    # Labels and hints examples
+    labels:
+      defaults:
+        files: 'Upload one or more files'
+    #     password: 'Password'
+    #   user:
+    #     new:
+    #       email: 'E-mail to sign in.'
+    #     edit:
+    #       email: 'E-mail.'
+    hints:
+      #defaults:
+      #  files: 'A PDF is preferred.'
+      article:
+        files: 'For your Article, a PDF is preferred.'
+      document:
+        files: 'For your Document, a PDF is preferred.'
+      senior_thesis:
+        files: 'For your Senior Thesis, a PDF is preferred.'
+      etd:
+        files: 'For your ETD, a PDF is preferred.'
+
+    #     username: 'User name to sign in.'
+    #     password: 'No special characters, please.'
+

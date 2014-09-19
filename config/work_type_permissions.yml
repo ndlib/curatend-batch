@@ -1,0 +1,14 @@
+Article:
+  open: all
+Dataset:
+  open: all
+Document:
+  open: all
+FindingAid:
+  open: all
+Image:
+  open: all
+SeniorThesis:
+  open: all
+Etd:
+  open: all

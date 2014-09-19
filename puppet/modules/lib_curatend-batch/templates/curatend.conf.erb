@@ -1,0 +1,63 @@
+tcp_nopush on;
+tcp_nodelay off;
+
+upstream app_server {
+    server unix:/tmp/curatend.sock.0;
+}
+server {
+    listen 80;
+    server_name _;
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+server {
+    listen 443 ssl default_server deferred;
+    server_name _;
+    ssl_certificate      <%= @ssl_certificate %>;
+    ssl_certificate_key  <%= @ssl_certificate_key %>;
+    ssl_session_cache shared:SSL:1m;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+
+    client_max_body_size 4G;
+    server_tokens off;
+    root /home/app/curatend/current/public;
+    location ^~ /assets/ {
+        # compress things on-the-fly
+        gzip on;
+        # first try to serve a precomputed gzipped version
+        gzip_static on;
+        expires 1y;
+        add_header Cache-Control public;
+        add_header ETag "";
+        break;
+    }
+
+    error_page 503 /503.html;
+    error_page 500 502 /500.html;
+
+    try_files $uri @app;
+
+    location @app {
+        internal;
+        # Maintenance mode if file is present
+        # unless request has the header X-Test set to something, e.g. "on"
+        if ( -f /home/app/curatend/shared/system/maintenance ) {
+            set $maintenance "1";
+        }
+        if ( $http_x_test ) {
+            set $maintenance "";
+        }
+        if ( $maintenance ) {
+            return 503;
+        }
+
+        # proxy_set_header Host $http_host;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_pass http://app_server;
+    }
+}
