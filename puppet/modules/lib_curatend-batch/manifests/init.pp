@@ -4,20 +4,20 @@
 
 class lib_curatend-batch() {
 
-# create app user, build ruby
+	# create app user, build ruby
 
-include lib_app_home
-include lib_ruby
-include lib_batchs
+	include lib_app_home
+	include lib_ruby
+	include lib_batchs
 
-# app subdirectory for batch
+	# app subdirectory for batch
 
-file { "/home/app/curatend-batch": 
-	ensure => directory,
-	mode => 0755,
-	owner => "app",
-	group => "app",
-	require => Class["lib_app_home"],
-}
+	file { "/home/app/curatend-batch": 
+		ensure => directory,
+		mode => 0755,
+		owner => "app",
+		group => "app",
+		require => Class["lib_app_home"],
+	}
 
 }

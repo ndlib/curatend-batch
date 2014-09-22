@@ -1,0 +1,10 @@
+description "Batchs -- CurateND Batch Commander service"
+
+start on runlevel [2345]
+console none
+respawn
+
+exec <%= @batchs_root %>/bin/batchs \
+     --config  <%= @batchs_root %>/config.ini \
+     --log <%= @batchs_root %>/log/batchs.log \
+     --pid <%= @batchs_root %>/batchs.pid
