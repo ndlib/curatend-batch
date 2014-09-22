@@ -298,8 +298,3 @@ func (ctx *Context) initDirs() {
 		}
 	}
 }
-
-func main() {
-	ctx := NewContext("test")
-	ctx.Run()
-}
