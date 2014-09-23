@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"syscall"
+
+	"github.com/ndlib/curatend-batch/batchs"
 )
 
 type Reopener interface {
@@ -94,6 +96,6 @@ func main() {
 	logw.Reopen()
 	log.Println("-----Starting Server")
 
-	ctx := NewContext("test")
+	ctx := batchs.NewContext("test")
 	ctx.Run()
 }

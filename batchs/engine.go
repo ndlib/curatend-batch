@@ -1,89 +1,14 @@
-package main
+package batchs
 
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path"
-	"path/filepath"
 	"time"
 )
-
-type status int
-
-const (
-	statusUnknown    = iota
-	statusNew        // job is in queue directory
-	statusProcessing // in processing directory
-	statusError      // in error directory
-	statusDone       // in success directory
-)
-
-// a job consists of, essentially, a list of tasks.
-type job struct {
-	name     string
-	status   status
-	log      io.WriteCloser
-	path     string
-	Owner    string
-	Todo     []string
-	Finished []Task
-}
-
-type Task struct {
-	Name   string
-	Start  time.Time
-	Finish time.Time
-	Status string
-}
-
-// Set up an envrionment and execute the first task on the Todo list.
-// The task is removed from the Todo list and a Task structure is appended
-// to the Finished list.
-func (jb *job) executeTask() error {
-	tskname := jb.Todo[0]
-	t := Task{Name: tskname}
-	fmt.Fprintf(jb.log, "\n===== Task %s\n", tskname)
-
-	e := exec.Command("bash", "-c", tskname)
-	e.Env = []string{
-		fmt.Sprintf("OWNER=%s", jb.Owner),
-	}
-	e.Stdout = jb.log
-	e.Stderr = jb.log
-	e.Dir, _ = filepath.Abs(jb.path)
-
-	t.Start = time.Now()
-	e.Run()
-	t.Finish = time.Now()
-
-	t.Status = "ok"
-	fmt.Fprintf(jb.log, "===== End %s\n", tskname)
-	jb.Todo = jb.Todo[1:]
-	jb.Finished = append(jb.Finished, t)
-	return nil
-}
-
-// process all the tasks in a job until either there are no more tasks
-// or there is an error. Expects the task to be in the stateProcessing state.
-// (How does it notify the parent context when it is finished?)
-func (jb *job) process() error {
-	// take next task and try to run it
-	if jb.status != statusProcessing {
-		panic(fmt.Errorf("Tried to process a job in state %d", jb.status))
-	}
-	var err error
-	for len(jb.Todo) > 0 {
-		if err = jb.executeTask(); err != nil {
-			break
-		}
-	}
-	return err
-}
 
 // Context tracks the path of where we store the queues.
 // It is the only structure which knows about how the queues are persisted
@@ -95,7 +20,7 @@ type Context struct {
 
 // load a job from disk. will look for the job in the directory dir,
 // or pass "" to search all directories.
-func (ctx *Context) load(dir, name string) (*job, error) {
+func (ctx *Context) load(dir, name string) (*Job, error) {
 	var jpath string
 	var err error
 	if dir == "" {
@@ -106,7 +31,7 @@ func (ctx *Context) load(dir, name string) (*job, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := &job{name: name}
+	result := &Job{name: name}
 	// open the log first, so if there is an error there is a place to put it
 	result.log, err = os.OpenFile(path.Join(jpath, "LOG"),
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
@@ -131,21 +56,11 @@ func (ctx *Context) load(dir, name string) (*job, error) {
 		return nil, err
 	}
 
-	switch dir {
-	case "queue":
-		result.status = statusNew
-	case "processing":
-		result.status = statusProcessing
-	case "success":
-		result.status = statusDone
-	case "error":
-		result.status = statusError
-	}
 	result.path = jpath
 	return result, nil
 }
 
-func (ctx *Context) save(dir string, jb *job) error {
+func (ctx *Context) save(dir string, jb *Job) error {
 	var err error
 	jpath := path.Join(ctx.basepath, dir, jb.name)
 	f, err := os.Create(path.Join(jpath, "JOB"))
