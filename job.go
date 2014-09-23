@@ -46,7 +46,7 @@ type Task struct {
 func (jb *job) executeTask() error {
 	tskname := jb.Todo[0]
 	t := Task{Name: tskname}
-	fmt.Fprintf(jb.log, "===== Task %s", tskname)
+	fmt.Fprintf(jb.log, "===== Task %s\n", tskname)
 
 	e := exec.Command("bash", "-c", tskname)
 	e.Env = []string{
@@ -61,7 +61,7 @@ func (jb *job) executeTask() error {
 	t.Finish = time.Now()
 
 	t.Status = "ok"
-	fmt.Fprintf(jb.log, "===== End %s", tskname)
+	fmt.Fprintf(jb.log, "===== End %s\n", tskname)
 	jb.Todo = jb.Todo[1:]
 	jb.Finished = append(jb.Finished, t)
 	return nil
@@ -101,15 +101,30 @@ func (ctx *Context) load(dir, name string) (*job, error) {
 	if err != nil {
 		return nil, err
 	}
+	result := &job{name: name}
+	// open the log first, so if there is an error there is a place to put it
+	result.log, err = os.OpenFile(path.Join(jpath, "LOG"),
+		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
+		0664)
+	if err != nil {
+		log.Println("load:", err)
+		return nil, err
+	}
 	f, err := os.Open(path.Join(jpath, "JOB"))
 	if err != nil {
+		fmt.Fprintf(result.log, "Error opening JOB file: %s\n", err)
+		result.log.Close()
 		return nil, err
 	}
 	defer f.Close()
 
-	result := &job{name: name}
 	dec := json.NewDecoder(f)
 	err = dec.Decode(result)
+	if err != nil {
+		fmt.Fprintf(result.log, "Error reading JOB file: %s\n", err.Error())
+		result.log.Close()
+		return nil, err
+	}
 
 	switch dir {
 	case "queue":
@@ -121,10 +136,8 @@ func (ctx *Context) load(dir, name string) (*job, error) {
 	case "error":
 		result.status = statusError
 	}
-
-	result.log, err = os.OpenFile(path.Join(jpath, "LOG"), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0664)
 	result.path = jpath
-	return result, err
+	return result, nil
 }
 
 func (ctx *Context) save(dir string, jb *job) error {
@@ -132,6 +145,7 @@ func (ctx *Context) save(dir string, jb *job) error {
 	jpath := path.Join(ctx.basepath, dir, jb.name)
 	f, err := os.Create(path.Join(jpath, "JOB"))
 	if err != nil {
+		fmt.Fprintf(jb.log, "Error saving JOB file: %s", err.Error())
 		return err
 	}
 	defer f.Close()
@@ -139,7 +153,8 @@ func (ctx *Context) save(dir string, jb *job) error {
 	enc := json.NewEncoder(f)
 	err = enc.Encode(jb)
 
-	if jb.log != nil {
+	if err != nil && jb.log != nil {
+		fmt.Fprintf(jb.log, "Error saving JOB file: %s", err.Error())
 		jb.log.Close()
 	}
 	return err
@@ -174,15 +189,17 @@ func (ctx *Context) start(name string) error {
 // with names beginning later in the alphabet.
 func (ctx *Context) scanAndLoad() error {
 	for {
-		fnames, err := ctx.listJobs("queue")
+		dentries, err := ctx.listJobs("queue")
 		if err != nil {
 			return err
 		}
-		if len(fnames) == 0 {
+		if len(dentries) == 0 {
 			break
 		}
-		for _, finfo := range fnames {
+		for _, finfo := range dentries {
+			log.Printf("Found %s", finfo.Name())
 			if !finfo.IsDir() {
+				log.Printf("Not a directory. Skipping")
 				continue
 			}
 			err = ctx.start(finfo.Name())
@@ -198,7 +215,7 @@ const (
 	pollDuration = 5 * time.Second
 )
 
-// WatchDir returns when new files are added to the directory `dirname`.
+// WatchDir returns when new files are added to the directory `dirname` (or an error).
 func (ctx *Context) watchDir(dirname string) error {
 	dname := path.Join(ctx.basepath, dirname)
 	info, err := os.Stat(dname)
@@ -206,6 +223,7 @@ func (ctx *Context) watchDir(dirname string) error {
 		return err
 	}
 
+	// since NFS mounts don't support ionotify events, lets poll
 	tick := time.NewTicker(pollDuration)
 loop:
 	for {
@@ -265,9 +283,17 @@ var (
 func (ctx *Context) Run() {
 	for {
 		// see if there are any jobs in the queue
-		ctx.scanAndLoad()
+		if err := ctx.scanAndLoad(); err != nil {
+			log.Println("Run:", err)
+			break
+		}
+
 		// wait for jobs to appear
-		ctx.watchDir("queue")
+		if err := ctx.watchDir("queue"); err != nil {
+			// an error?
+			log.Println("watchDir:", err)
+			break
+		}
 	}
 }
 
