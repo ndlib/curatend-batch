@@ -23,6 +23,7 @@ const (
 	statusDone       // in success directory
 )
 
+// a job consists of, essentially, a list of tasks.
 type job struct {
 	name     string
 	status   status
@@ -46,7 +47,7 @@ type Task struct {
 func (jb *job) executeTask() error {
 	tskname := jb.Todo[0]
 	t := Task{Name: tskname}
-	fmt.Fprintf(jb.log, "===== Task %s\n", tskname)
+	fmt.Fprintf(jb.log, "\n===== Task %s\n", tskname)
 
 	e := exec.Command("bash", "-c", tskname)
 	e.Env = []string{
@@ -84,6 +85,10 @@ func (jb *job) process() error {
 	return err
 }
 
+// Context tracks the path of where we store the queues.
+// It is the only structure which knows about how the queues are persisted
+// to disk.
+// It should be promoted to an interface, probably.
 type Context struct {
 	basepath string // the path to the base directory holding our state directories
 }
@@ -171,12 +176,15 @@ func (ctx *Context) start(name string) error {
 	}
 	jb, err := ctx.load("processing", name)
 	if err != nil {
+		// try to move it---ignore any errors
+		ctx.move(name, "processing", "error")
 		return err
 	}
 
 	err = jb.process()
-	ctx.save("processing", jb)
-	if err != nil {
+
+	err2 := ctx.save("processing", jb)
+	if err != nil || err2 != nil {
 		ctx.move(name, "processing", "error")
 	} else {
 		ctx.move(name, "processing", "success")
