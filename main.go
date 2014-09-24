@@ -78,12 +78,11 @@ func main() {
 		logw        Reopener
 		logfilename = flag.String("log", "", "name of log file")
 		showVersion = flag.Bool("version", false, "Display binary version")
-		queuepath   = flag.String("queuepath", "test", "path to the queue directory")
-		taskpath    = flag.String("taskpath", "tasks", "path to the task commands")
+		queuepath   = flag.String("queue", "test", "path to the queue directory")
+		taskpath    = flag.String("tasks", "tasks", "path to the task commands")
 	)
 
 	flag.StringVar(&pidfilename, "pid", "", "file to store pid of server")
-
 	flag.Parse()
 
 	if *showVersion {

@@ -7,4 +7,5 @@ respawn
 exec <%= @batchs_root %>/bin/curatend-batch \
      --log <%= @batchs_root %>/log/batchs.log \
      --pid <%= @batchs_root %>/batchs.pid \
-     --queue <%= @batch_queue_dir %>
+     --queue <%= @batch_queue_dir %> \
+     --tasks <%= @batchs_root %>/tasks

@@ -2,6 +2,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 
 	$pkglist = [ "golang" ]
 	$batch_queue_dir = hiera('batch_queue_dir')
+	$fedora_passwd = hiera('fedora_passwd')
 
 	package { $pkglist:
 		ensure => present,
@@ -25,10 +26,24 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		require => Exec["Build-batchs-from-repo"],
 	}
 
+	file { 'batchs/tasks':
+		name => '${batchs_root}/tasks'
+		ensure => 'link',
+		target => '${batchs_root}/src/github.com/ndlib/curatend-batch/tasks'
+		require => Exec['Build-batchs-from-repo'],
+	}
+
+	file { 'batchs/tasks/conf':
+		name => '${batchs_root}/tasks/conf',
+		replace => true
+		content => template('lib_batchs/tasks.conf.erb'),
+		require => File['batchs/tasks'],
+	}
+
 	file { 'logrotate.d/batchs':
 		name => '/etc/logrotate.d/batchs',
 		replace => true,
-		require => File["batchs.conf"],
+		require => File["batchs/tasks/conf"],
 		content => template('lib_batchs/logrotate.erb'),
 	}
 
