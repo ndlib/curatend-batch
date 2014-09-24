@@ -104,6 +104,12 @@ func (ctx *Context) start(name string) error {
 		return err
 	}
 
+	// If a job has no tasks assigned and has completed no tasks
+	// seed it with the default task `start`
+	if len(jb.Todo)+len(jb.Finished) == 0 {
+		jb.Todo = append(jb.Todo, "start")
+	}
+
 	err = jb.process()
 
 	err2 := ctx.save("processing", jb)
