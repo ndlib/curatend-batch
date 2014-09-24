@@ -1,0 +1,7 @@
+gemfile_dir=.
+fedora_url=localhost:8983/fedora
+fedora_user=fedoraAdmin
+fedora_pass=fedoraAdmin
+noid_prefix=und
+noid_url=localhost:13001
+noid_pool=curate-test

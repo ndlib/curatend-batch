@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Default workflow task
+# It just addes the actual work to do to the job's task list
+
+echo 'addtask:assign-pids' >> $JOBCONTROL
+echo 'addtask:validate' >> $JOBCONTROL
+echo 'addtask:ingest' >> $JOBCONTROL

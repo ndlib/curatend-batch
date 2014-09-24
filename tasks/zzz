@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# test task, which does not have its execute bit set
+# should always fail execution
+
+echo worked
+echo $JOBPATH

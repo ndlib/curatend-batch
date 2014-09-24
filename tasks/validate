@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+# Validate the ROF data before putting it into fedora
+
+scriptdir=$(cd $(dirname $0); pwd)
+source $scriptdir/conf
+
+cd $gemfile_dir
+exec bundle exec rof validate $JOBPATH/*.rof
