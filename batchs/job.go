@@ -82,10 +82,11 @@ func (jb *Job) executeTask() error {
 	}
 
 	jb.log.Printf("===== End %s\n", tskname)
-	jb.Todo = jb.Todo[1:]
 	jb.Finished = append(jb.Finished, t)
 
 	if t.Status == "ok" {
+		// only remove task if it was successful
+		jb.Todo = jb.Todo[1:]
 		return nil
 	} else {
 		return fmt.Errorf("Error")
