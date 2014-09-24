@@ -2,7 +2,7 @@
 # This class is called from Capistrano, and has the overall layout
 # of the batch server
 
-class lib_curatend-batch() {
+class lib_curatend_batch() {
 
 	# create app user, build ruby
 

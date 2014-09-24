@@ -27,9 +27,9 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	}
 
 	file { 'batchs/tasks':
-		name => '${batchs_root}/tasks'
+		name => '${batchs_root}/tasks',
 		ensure => 'link',
-		target => '${batchs_root}/src/github.com/ndlib/curatend-batch/tasks'
+		target => '${batchs_root}/src/github.com/ndlib/curatend-batch/tasks',
 		require => Exec['Build-batchs-from-repo'],
 	}
 
