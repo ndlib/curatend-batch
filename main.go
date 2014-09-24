@@ -96,6 +96,9 @@ func main() {
 	logw.Reopen()
 	log.Println("-----Starting Server")
 
+	log.Println("queuepath =", *queuepath)
+	log.Println("taskpath =", *taskpath)
+
 	ctx := batchs.NewContext(*queuepath, *taskpath)
 	ctx.Run()
 }
