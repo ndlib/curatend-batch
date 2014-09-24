@@ -1,6 +1,7 @@
 class lib_batchs( $batchs_root = '/opt/batchs') {
 
 	$pkglist = [ "golang" ]
+	$batch_queue_dir = hiera('batch_queue_dir')
 
 	package { $pkglist:
 		ensure => present,
@@ -31,17 +32,10 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		content => template('lib_batchs/logrotate.erb'),
 	}
 
-	file { "batchs/config.ini":
-		name => "${batchs_root}/config.ini",
-		replace => true,
-		require => File['logrotate.d/batchs'], 
-		content => template('lib_batchs/config.ini.erb'),
-	}
-
 	exec { "stop-batchs":
 		command => "/sbin/initctl stop batchs",
 		unless => "/sbin/initctl status batchs | grep stop",
-		require => File[ "batchs/config.ini"],
+		require => File['logrotate.d/batchs'], 
 	}
 
 	exec { "start-batchs":
