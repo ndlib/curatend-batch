@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # the environments that are not used to execute the deploy scripts
 group :default do
  gem 'rake'
- gem 'rof'
+ gem 'rof', git: 'https://github.com/ndlib/rof'
 end
 
 group :deploy do
