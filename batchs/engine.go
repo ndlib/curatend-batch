@@ -16,6 +16,7 @@ import (
 // It should be promoted to an interface, probably.
 type Context struct {
 	basepath string // the path to the base directory holding our state directories
+	taskpath string // the path to the directory mapping task names to commands
 }
 
 // load a job from disk. will look for the job in the directory dir,
@@ -58,6 +59,7 @@ func (ctx *Context) load(dir, name string) (*Job, error) {
 	}
 
 	result.path = jpath
+	result.taskpath = ctx.taskpath
 	return result, nil
 }
 
@@ -230,8 +232,9 @@ func (ctx *Context) Run() {
 
 // NewContext creates a new context structure, ensures the required directories
 // are present, and returns any old processing jobs to the queue.
-func NewContext(basepath string) *Context {
-	ctx := &Context{basepath: basepath}
+// taskpath is used to resolve task names into commands.
+func NewContext(basepath, taskpath string) *Context {
+	ctx := &Context{basepath: basepath, taskpath: taskpath}
 	ctx.initDirs()
 	return ctx
 }

@@ -21,6 +21,7 @@ type Job struct {
 	Owner    string         // the job's owner. passed to tasks
 	Todo     []string       // FIFO list of task names to execute
 	Finished []Task         // list of finished tasks, from earliest to latest
+	taskpath string         // location of task command files
 }
 
 type Task struct {
@@ -47,30 +48,62 @@ func (jb *Job) executeTask() error {
 	} else {
 		controlfname := controlf.Name()
 		controlf.Close()
-		e := exec.Command("bash", "-c", tskname)
-		e.Env = []string{
-			fmt.Sprintf("OWNER=%s", jb.Owner),
-			fmt.Sprintf("JOBPATH=%s", jb.path),
-			fmt.Sprintf("JOBNAME=%s", jb.name),
-			fmt.Sprintf("JOBCONTROL=%s", controlfname),
+
+		tcommand := jb.resolve(tskname)
+		if tcommand == "" {
+			jb.log.Printf("Could not resolve task '%s'", tskname)
+			t.Status = "Error"
+			t.Finish = time.Now()
+		} else {
+			jb.log.Printf("exec '%s'", tcommand)
+			e := exec.Command(tcommand)
+			e.Env = []string{
+				fmt.Sprintf("OWNER=%s", jb.Owner),
+				fmt.Sprintf("JOBPATH=%s", jb.path),
+				fmt.Sprintf("JOBNAME=%s", jb.name),
+				fmt.Sprintf("JOBCONTROL=%s", controlfname),
+			}
+			e.Stdout = jb.logfile
+			e.Stderr = jb.logfile
+			e.Dir, err = filepath.Abs(jb.path)
+
+			err = e.Run()
+			t.Finish = time.Now()
+
+			if err != nil {
+				jb.log.Println(err)
+				t.Status = "Error"
+			} else {
+				t.Status = "ok"
+				jb.readControl(controlfname)
+			}
 		}
-		e.Stdout = jb.logfile
-		e.Stderr = jb.logfile
-		e.Dir, _ = filepath.Abs(jb.path)
-
-		e.Run()
-		t.Finish = time.Now()
-
-		t.Status = "ok"
-
-		jb.readControl(controlfname)
 		os.Remove(controlfname)
 	}
 
 	jb.log.Printf("===== End %s\n", tskname)
 	jb.Todo = jb.Todo[1:]
 	jb.Finished = append(jb.Finished, t)
-	return nil
+
+	if t.Status == "ok" {
+		return nil
+	} else {
+		return fmt.Errorf("Error")
+	}
+}
+
+// Given a task name, return a command to execute, or
+// empty string if no task could be resolved
+func (jb *Job) resolve(taskname string) string {
+	tcommand, err := filepath.Abs(filepath.Join(jb.taskpath, taskname))
+	if err != nil {
+		return ""
+	}
+	_, err = os.Stat(tcommand)
+	if err != nil {
+		return ""
+	}
+	return tcommand
 }
 
 // reads the given control file, and mutates jb appropriately.
