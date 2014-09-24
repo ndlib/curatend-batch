@@ -73,8 +73,10 @@ func (ctx *Context) save(dir string, jb *Job) error {
 	}
 	defer f.Close()
 
-	enc := json.NewEncoder(f)
-	err = enc.Encode(jb)
+	data, err := json.MarshalIndent(jb, "", "    ")
+	if err == nil {
+		_, err = f.Write(data)
+	}
 
 	if err != nil && jb.log != nil {
 		jb.log.Println("Error saving JOB file:", err)
