@@ -75,27 +75,27 @@ var (
 
 func main() {
 	var (
-		logfilename string
-		showVersion bool
 		logw        Reopener
+		logfilename = flag.String("log", "", "name of log file")
+		showVersion = flag.Bool("version", false, "Display binary version")
+		queuepath   = flag.String("queuepath", "test", "path to the queue directory")
+		// taskpath  = flag.String("taskpath", "tasks", "path to the task commands")
 	)
 
-	flag.StringVar(&logfilename, "log", "", "name of log file")
 	flag.StringVar(&pidfilename, "pid", "", "file to store pid of server")
-	flag.BoolVar(&showVersion, "version", false, "Display binary version")
 
 	flag.Parse()
 
-	if showVersion {
+	if *showVersion {
 		fmt.Printf("batchs version %s\n", version)
 		return
 	}
 
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
-	logw = NewReopener(logfilename)
+	logw = NewReopener(*logfilename)
 	logw.Reopen()
 	log.Println("-----Starting Server")
 
-	ctx := batchs.NewContext("test")
+	ctx := batchs.NewContext(*queuepath)
 	ctx.Run()
 }
