@@ -33,17 +33,18 @@ func (ctx *Context) load(dir, name string) (*Job, error) {
 	}
 	result := &Job{name: name}
 	// open the log first, so if there is an error there is a place to put it
-	result.log, err = os.OpenFile(path.Join(jpath, "LOG"),
+	result.logfile, err = os.OpenFile(path.Join(jpath, "LOG"),
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
 		0664)
 	if err != nil {
 		log.Println("load:", err)
 		return nil, err
 	}
+	result.log = log.New(result.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 	f, err := os.Open(path.Join(jpath, "JOB"))
 	if err != nil {
-		fmt.Fprintf(result.log, "Error opening JOB file: %s\n", err)
-		result.log.Close()
+		result.log.Println("Error opening JOB file:", err)
+		result.logfile.Close()
 		return nil, err
 	}
 	defer f.Close()
@@ -51,8 +52,8 @@ func (ctx *Context) load(dir, name string) (*Job, error) {
 	dec := json.NewDecoder(f)
 	err = dec.Decode(result)
 	if err != nil {
-		fmt.Fprintf(result.log, "Error reading JOB file: %s\n", err.Error())
-		result.log.Close()
+		result.log.Println("Error reading JOB file:", err)
+		result.logfile.Close()
 		return nil, err
 	}
 
@@ -65,7 +66,7 @@ func (ctx *Context) save(dir string, jb *Job) error {
 	jpath := path.Join(ctx.basepath, dir, jb.name)
 	f, err := os.Create(path.Join(jpath, "JOB"))
 	if err != nil {
-		fmt.Fprintf(jb.log, "Error saving JOB file: %s", err.Error())
+		jb.log.Println("Error saving JOB file:", err)
 		return err
 	}
 	defer f.Close()
@@ -74,8 +75,11 @@ func (ctx *Context) save(dir string, jb *Job) error {
 	err = enc.Encode(jb)
 
 	if err != nil && jb.log != nil {
-		fmt.Fprintf(jb.log, "Error saving JOB file: %s", err.Error())
-		jb.log.Close()
+		jb.log.Println("Error saving JOB file:", err)
+		if jb.logfile != nil {
+			jb.logfile.Close()
+			jb.logfile = nil
+		}
 	}
 	return err
 }
@@ -108,8 +112,7 @@ func (ctx *Context) start(name string) error {
 }
 
 // Scan the queue directory and load jobs one by one until we have processed
-// everything. The jobs are loaded in alphabetical order...this may starve jobs
-// with names beginning later in the alphabet.
+// everything.
 func (ctx *Context) scanAndLoad() error {
 	for {
 		dentries, err := ctx.listJobs("queue")
