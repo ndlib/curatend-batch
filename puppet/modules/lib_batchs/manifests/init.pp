@@ -35,7 +35,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 
 	file { 'batchs/tasks/conf':
 		name => '${batchs_root}/tasks/conf',
-		replace => true
+		replace => true,
 		content => template('lib_batchs/tasks.conf.erb'),
 		require => File['batchs/tasks'],
 	}
