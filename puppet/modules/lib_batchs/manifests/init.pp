@@ -27,14 +27,14 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	}
 
 	file { 'batchs/tasks':
-		name => '${batchs_root}/tasks',
+		name => "${batchs_root}/tasks",
 		ensure => 'link',
-		target => '${batchs_root}/src/github.com/ndlib/curatend-batch/tasks',
+		target => "${batchs_root}/src/github.com/ndlib/curatend-batch/tasks",
 		require => Exec['Build-batchs-from-repo'],
 	}
 
 	file { 'batchs/tasks/conf':
-		name => '${batchs_root}/tasks/conf',
+		name => "${batchs_root}/tasks/conf",
 		replace => true,
 		content => template('lib_batchs/tasks.conf.erb'),
 		require => File['batchs/tasks'],
