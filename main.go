@@ -98,6 +98,15 @@ func main() {
 	log.Println("queuepath =", *queuepath)
 	log.Println("taskpath =", *taskpath)
 
+	if pidfilename != "" {
+		writePID(pidfilename)
+	}
+
 	ctx := batchs.NewContext(*queuepath, *taskpath)
 	ctx.Run()
+
+	if pidfilename != "" {
+		// we don't care if there is an error
+		os.Remove(pidfilename)
+	}
 }
