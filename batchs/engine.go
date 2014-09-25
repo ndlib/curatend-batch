@@ -124,25 +124,24 @@ func (ctx *Context) start(name string) error {
 // Scan the queue directory and load jobs one by one until we have processed
 // everything.
 func (ctx *Context) scanAndLoad() error {
-	// count the number of dentries which are not directories, so we may break
-	// out of the for loop should any be present
+	// count the number of dentries which are not directories
 	var nFiles int
 	for {
 		dentries, err := ctx.listJobs("queue")
 		if err != nil {
 			return err
 		}
+		// exit for loop when only non directories are present
 		if len(dentries) <= nFiles {
 			break
 		}
 		nFiles = 0
 		for _, finfo := range dentries {
-			log.Printf("Found %s", finfo.Name())
 			if !finfo.IsDir() {
-				log.Printf("Not a directory. Skipping")
 				nFiles++
 				continue
 			}
+			log.Printf("Processing job %s", finfo.Name())
 			err = ctx.start(finfo.Name())
 			if err != nil {
 				log.Println("scanAndLoad:", err)
