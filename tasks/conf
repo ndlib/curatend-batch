@@ -5,3 +5,4 @@ fedora_pass=fedoraAdmin
 noid_prefix=und
 noid_url=localhost:13001
 noid_pool=curate-test
+export PATH=/usr/local/bin:/usr/bin:/bin
