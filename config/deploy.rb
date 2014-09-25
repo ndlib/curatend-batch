@@ -3,7 +3,7 @@
 # NOTE: The SCM command expects to be at the same path on both the local and
 # remote machines. The default git path is: '/shared/git/bin/git'.
 
-set :bundle_roles, [:app, :work]
+set :bundle_roles, [:app]
 set :bundle_flags, "--deployment"
 require 'bundler/capistrano'
 # see http://gembundler.com/v1.3/deploying.html
@@ -116,7 +116,7 @@ namespace :und do
   end
 
   desc "Run puppet using the modules supplied by the application"
-  task :puppet, :roles => [:app, :work] do
+  task :puppet, :roles => :app do
     run_puppet()
   end
 end
@@ -152,7 +152,7 @@ def common
 end
 
 set    :domain,     fetch(:host, 'libvirt6.library.nd.edu')
-server "app@#{domain}", :app, :work, :web, :db, :primary => true
+server "app@#{domain}", :app
 common()
 
 # these tasks are here as placeholders.
