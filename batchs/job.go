@@ -1,6 +1,7 @@
 package batchs
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -31,66 +32,56 @@ type Task struct {
 	Status string
 }
 
-// Set up an envrionment and execute the first task on the Todo list.
-// The task is removed from the Todo list and a Task structure is appended
-// to the Finished list.
-func (jb *Job) executeTask() error {
-	tskname := jb.Todo[0]
-	t := Task{Name: tskname}
-	jb.log.Printf("===== Task %s", tskname)
+// Set up an envrionment and execute the given task name.
+func (jb *Job) executeTask(tskname string) Task {
+	t := Task{Name: tskname,
+		Status: "Error", // assume an error
+	}
 	t.Start = time.Now()
 
 	controlf, err := ioutil.TempFile("", "curate-task-")
 	if err != nil {
 		jb.log.Println("Error creating control file:", err)
-		t.Status = "Error"
 		t.Finish = time.Now()
-	} else {
-		controlfname := controlf.Name()
-		controlf.Close()
+		return t
+	}
+	controlfname := controlf.Name()
+	controlf.Close()
+	defer os.Remove(controlfname)
 
-		tcommand := jb.resolve(tskname)
-		if tcommand == "" {
-			jb.log.Printf("Could not resolve task '%s'", tskname)
-			t.Status = "Error"
-			t.Finish = time.Now()
-		} else {
-			jb.log.Printf("exec '%s'", tcommand)
-			e := exec.Command(tcommand)
-			e.Env = []string{
-				fmt.Sprintf("OWNER=%s", jb.Owner),
-				fmt.Sprintf("JOBPATH=%s", jb.path),
-				fmt.Sprintf("JOBNAME=%s", jb.name),
-				fmt.Sprintf("JOBCONTROL=%s", controlfname),
-			}
-			e.Stdout = jb.logfile
-			e.Stderr = jb.logfile
-			e.Dir, err = filepath.Abs(jb.path)
+	tcommand := jb.resolve(tskname)
+	if tcommand == "" {
+		jb.log.Printf("Could not resolve task '%s'", tskname)
+		t.Finish = time.Now()
+		return t
+	}
+	jb.log.Printf("exec '%s'", tcommand)
+	e := exec.Command(tcommand)
+	e.Env = []string{
+		fmt.Sprintf("OWNER=%s", jb.Owner),
+		fmt.Sprintf("JOBPATH=%s", jb.path),
+		fmt.Sprintf("JOBNAME=%s", jb.name),
+		fmt.Sprintf("JOBCONTROL=%s", controlfname),
+	}
+	e.Stdout = jb.logfile
+	e.Stderr = jb.logfile
+	e.Dir, err = filepath.Abs(jb.path)
 
-			err = e.Run()
-			t.Finish = time.Now()
+	if err == nil {
+		err = e.Run()
+	}
+	t.Finish = time.Now()
 
-			if err != nil {
-				jb.log.Println(err)
-				t.Status = "Error"
-			} else {
-				t.Status = "ok"
-				jb.readControl(controlfname)
-			}
-		}
-		os.Remove(controlfname)
+	if err == nil {
+		err = jb.readControl(controlfname)
 	}
 
-	jb.log.Printf("===== End %s\n", tskname)
-	jb.Finished = append(jb.Finished, t)
-
-	if t.Status == "ok" {
-		// only remove task if it was successful
-		jb.Todo = jb.Todo[1:]
-		return nil
+	if err != nil {
+		jb.log.Println(err)
 	} else {
-		return fmt.Errorf("Error")
+		t.Status = "ok"
 	}
+	return t
 }
 
 // Given a task name, return a command to execute, or
@@ -115,24 +106,39 @@ func (jb *Job) readControl(fname string) error {
 	}
 	lines := strings.Split(string(body), "\n")
 	for _, ln := range lines {
-		if !strings.HasPrefix(ln, "addtask:") {
-			continue
+		switch {
+		case strings.HasPrefix(ln, "addtask:"):
+			jb.Todo = append(jb.Todo, ln[8:])
+		default:
+			return fmt.Errorf("Malformed control message %s", ln)
 		}
-		jb.Todo = append(jb.Todo, ln[8:])
 	}
 	return nil
 }
 
+var (
+	ProcessError = errors.New("Error running a task")
+)
+
 // process all the tasks in a Job until either there are no more tasks
-// or there is an error.
-// (How does it notify the parent context when it is finished?)
+// or there is an error. Tasks are removed from the Todo list as they
+// are successfully completed.
 func (jb *Job) process() error {
 	// take next task and try to run it
-	var err error
 	for len(jb.Todo) > 0 {
-		if err = jb.executeTask(); err != nil {
-			break
+		tskname := jb.Todo[0]
+		jb.log.Printf("===== Task %s", tskname)
+		t := jb.executeTask(tskname)
+		jb.log.Printf("===== End %s", tskname)
+		jb.Finished = append(jb.Finished, t)
+
+		jb.log.Printf("===== Status: %s", t.Status)
+		if t.Status != "ok" {
+			return ProcessError
 		}
+
+		// only remove task if successful
+		jb.Todo = jb.Todo[1:]
 	}
-	return err
+	return nil
 }
