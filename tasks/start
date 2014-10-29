@@ -6,3 +6,4 @@
 echo 'addtask:assign-pids' >> $JOBCONTROL
 echo 'addtask:validate' >> $JOBCONTROL
 echo 'addtask:ingest' >> $JOBCONTROL
+echo 'addtask:index' >> $JOBCONTROL
