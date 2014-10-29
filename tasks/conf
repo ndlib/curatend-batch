@@ -1,4 +1,6 @@
 gemfile_dir=.
+curate_url=https://localhost
+curate_api_key=test
 fedora_url=localhost:8983/fedora
 fedora_user=fedoraAdmin
 fedora_pass=fedoraAdmin

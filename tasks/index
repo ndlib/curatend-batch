@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Index the data into solr
+#
+# We rely on the application to do this. So we just send the paths
+# to the application (which then adds jobs to the background queue)
+
+scriptdir=$(cd $(dirname $0); pwd)
+source $scriptdir/conf
+
+for f in $JOBPATH/*.rof; do
+    if [ ! -e $f ]; then
+        echo "No ROF files in job directory"
+        exit 1
+    fi
+
+    temp_file=$f.ids
+
+    if ! cat $f | jq '[.[]|select(.type == "fobject")|.pid]' > $temp_file; then
+        echo "Problem parsing $f"
+        exit 1
+    fi
+
+    if ! curl $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" < $temp_file; then
+        echo "Problem contacting the curate server"
+        exit 1
+    fi
+
+    rm $temp_file
+done
