@@ -39,6 +39,6 @@ Resque.redis = redis_host_port
 queue = Sufia::Resque::Queue.new
 
 STDIN.each do |line|
-  queue.push(CharacterizeJob.new(line))
+  queue.push(CharacterizeJob.new(line.strip))
 end
 
