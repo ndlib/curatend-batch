@@ -1,8 +1,11 @@
 gemfile_dir=/home/app/curatend-batch/current/
-fedora_url=http://localhost:8080/fedora/
+curate_url=<%= @batch_curate_url %>
+curate_api_key=<%= @batch_curate_api_key %>
+fedora_url=<%= @batch_fedora_url %>
 fedora_user=fedoraAdmin
 fedora_pass=<%= @fedora_passwd %>
 noid_prefix=und
 noid_url=curatesvrprod.library.nd.edu:13001
-noid_pool=curate-dev
+noid_pool=<%= @batch_noid_pool %>
+redis_host_port=<%= @batch_redis_host_port %>
 export PATH=/opt/ruby/current/bin:/usr/local/bin:/usr/bin:/bin
