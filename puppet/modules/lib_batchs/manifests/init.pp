@@ -19,7 +19,6 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 
 	exec { "Build-batchs-from-repo":
 		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get github.com/ndlib/curatend-batch\"",
-		unless => "/usr/bin/test -f ${batchs_root}/bin/batchs",
 		require => File[$batchs_root],
 	}
 
