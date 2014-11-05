@@ -21,7 +21,7 @@ for f in "$JOBPATH"/*.rof; do
         exit 1
     fi
 
-    code=$(curl -k -w '%{http_code}' $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$temp_file")
+    code=$(curl -k -o /dev/null -s -S -w '%{http_code}' $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$temp_file")
     if [ $code != 200 ] ; then
         echo "Problem contacting the curate server. Received code $code"
         exit 1
