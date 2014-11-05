@@ -17,7 +17,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 
 	file { [ "$batchs_root", "${batchs_root}/log" ]:
 		ensure => directory,
-		require => Package["$pkglist"],
+		require => Package[$pkglist],
 	}
 
 	exec { "Build-batchs-from-repo":
