@@ -7,6 +7,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	$batch_queue_dir = hiera('batch_queue_dir')
 	$fedora_passwd = hiera('fedora_passwd')
 	$batch_curate_url = hiera('batch_curate_url')
+	$batch_curate_api_key = hiera('batch_curate_api_key')
 	$batch_fedora_url = hiera('batch_fedora_url')
 	$batch_noid_pool = hiera('batch_noid_pool')
 	$batch_redis_host_port = hiera('batch_redis_host_port')
