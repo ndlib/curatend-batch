@@ -1,6 +1,9 @@
 class lib_batchs( $batchs_root = '/opt/batchs') {
 
-	$pkglist = [ "golang" ]
+	$pkglist = [
+		"golang",
+		"jq"
+	]
 	$batch_queue_dir = hiera('batch_queue_dir')
 	$fedora_passwd = hiera('fedora_passwd')
 	$batch_curate_url = hiera('batch_curate_url')
