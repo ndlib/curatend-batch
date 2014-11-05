@@ -107,6 +107,8 @@ func (jb *Job) readControl(fname string) error {
 	lines := strings.Split(string(body), "\n")
 	for _, ln := range lines {
 		switch {
+		case ln == "":
+			// skip blank lines
 		case strings.HasPrefix(ln, "addtask:"):
 			jb.Todo = append(jb.Todo, ln[8:])
 		default:
