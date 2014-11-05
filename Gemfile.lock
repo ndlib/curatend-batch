@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 151244713e3e08a2d00b33cd245a433a268493cb
+  revision: 964f56c7c239f2321cca91ae7db310df7047208a
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
@@ -21,7 +21,7 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
     builder (3.2.2)
-    capistrano (2.15.4)
+    capistrano (2.15.5)
       highline
       net-scp (>= 1.0.0)
       net-sftp (>= 2.0.0)
@@ -32,7 +32,7 @@ GEM
     equivalent-xml (0.5.1)
       nokogiri (>= 1.4.3)
     fastercsv (1.5.5)
-    highline (1.6.19)
+    highline (1.6.21)
     hooks (0.3.6)
       uber (~> 0.0.4)
     i18n (0.6.11)
@@ -40,7 +40,7 @@ GEM
     json-ld (1.1.7)
       rdf (~> 1.1, >= 1.1.4)
     mime-types (2.4.3)
-    mini_portile (0.6.0)
+    mini_portile (0.6.1)
     minitest (5.4.2)
     mono_logger (1.1.0)
     multi_json (1.10.1)
@@ -55,8 +55,8 @@ GEM
     noids_client (0.0.1)
       json (~> 1.8)
       rest-client (~> 1.6)
-    nokogiri (1.6.3.1)
-      mini_portile (= 0.6.0)
+    nokogiri (1.6.4)
+      mini_portile (~> 0.6.0)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
