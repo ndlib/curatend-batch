@@ -22,7 +22,7 @@ for f in "$JOBPATH"/*.rof; do
         exit 1
     fi
 
-    if ! su app -c "REDIS_HOST_PORT=$redis_host_port bundle exec tasks/add-to-queue.rb < $temp_file; then
+    if ! su app -c "REDIS_HOST_PORT=$redis_host_port bundle exec tasks/add-to-queue.rb" < $temp_file; then
         echo "Problem contacting the redis server"
         exit 1
     fi
