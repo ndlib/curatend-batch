@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 964f56c7c239f2321cca91ae7db310df7047208a
+  revision: 6e231422320bbb1d010997778b09a82ffa6c62af
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
+      mime-types (~> 2.4.3)
       noids_client
       rdf (~> 1.1.2)
       rubydora (~> 1.7.4)
