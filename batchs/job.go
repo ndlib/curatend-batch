@@ -19,7 +19,6 @@ type Job struct {
 	log      *log.Logger    // logging interface to this job's LOG
 	logfile  io.WriteCloser // and the underlying file object (if applicable)
 	path     string         // location of this job on disk. passed to tasks
-	Owner    string         // the job's owner. passed to tasks
 	Todo     []string       // FIFO list of task names to execute
 	Finished []Task         // list of finished tasks, from earliest to latest
 	taskpath string         // location of task command files
@@ -58,7 +57,6 @@ func (jb *Job) executeTask(tskname string) Task {
 	jb.log.Printf("exec '%s'", tcommand)
 	e := exec.Command(tcommand)
 	e.Env = []string{
-		fmt.Sprintf("OWNER=%s", jb.Owner),
 		fmt.Sprintf("JOBPATH=%s", jb.path),
 		fmt.Sprintf("JOBNAME=%s", jb.name),
 		fmt.Sprintf("JOBCONTROL=%s", controlfname),
