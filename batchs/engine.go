@@ -42,8 +42,15 @@ func (ctx *Context) load(dir, name string) (*Job, error) {
 		return nil, err
 	}
 	result.log = log.New(result.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds)
+	result.path = jpath
+	result.taskpath = ctx.taskpath
 	f, err := os.Open(path.Join(jpath, "JOB"))
 	if err != nil {
+		if os.IsNotExist(err) {
+			// it is okay if there is no JOB file
+			return result, nil
+		}
+		// not okay if there is a JOB file and we cannot read it
 		result.log.Println("Error opening JOB file:", err)
 		result.logfile.Close()
 		return nil, err
@@ -58,8 +65,6 @@ func (ctx *Context) load(dir, name string) (*Job, error) {
 		return nil, err
 	}
 
-	result.path = jpath
-	result.taskpath = ctx.taskpath
 	return result, nil
 }
 
