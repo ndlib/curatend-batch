@@ -5,7 +5,7 @@
 
 # relies on globs being expanded in double quotes but not single quotes
 # we do not expect too many rof files. If that should not be the case, use find.
-if [ "metadata-*.rof" = 'metadata-*.rof' ]; then
+if [ "$JOBPATH/metadata-*.rof" = "$JOBPATH"'/metadata-*.rof' ]; then
     # no rof files, so process any csv files
     echo 'addtask:csv-to-rof' >> $JOBCONTROL
     echo 'addtask:assign-pids' >> $JOBCONTROL
