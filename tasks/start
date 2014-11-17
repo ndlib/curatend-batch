@@ -1,10 +1,15 @@
 #!/bin/bash
 
 # Default workflow task
-# It just addes the actual work to do to the job's task list
+# It adds the actual work to do to the job's task list
 
-echo 'addtask:csv-to-rof' >> $JOBCONTROL
-echo 'addtask:assign-pids' >> $JOBCONTROL
+# relies on globs being expanded in double quotes but not single quotes
+# we do not expect too many rof files. If that should not be the case, use find.
+if [ "metadata-*.rof" = 'metadata-*.rof' ]; then
+    # no rof files, so process any csv files
+    echo 'addtask:csv-to-rof' >> $JOBCONTROL
+    echo 'addtask:assign-pids' >> $JOBCONTROL
+fi
 echo 'addtask:validate' >> $JOBCONTROL
 echo 'addtask:ingest' >> $JOBCONTROL
 echo 'addtask:index' >> $JOBCONTROL
