@@ -8,7 +8,7 @@
 scriptdir=$(cd $(dirname $0); pwd)
 source $scriptdir/conf
 
-for f in "$JOBPATH"/*.rof; do
+for f in "$JOBPATH"/metadata-*.rof; do
     if [ ! -e $f ]; then
         echo "No ROF files in job directory"
         exit 1
