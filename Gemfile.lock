@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 49951012855c0012eefe1a8d38e030fac65e0772
+  revision: 7a9183e96af44a96139a61c0f4651e3df7eedd8a
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
