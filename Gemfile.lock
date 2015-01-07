@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 4978cfd46e633b63898321eb9a03e23dbd824171
+  revision: 14e695da8941eb6878f87c91421e15c6c70e2267
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
@@ -12,14 +12,14 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.1.8)
-      activesupport (= 4.1.8)
+    activemodel (4.2.0)
+      activesupport (= 4.2.0)
       builder (~> 3.1)
-    activesupport (4.1.8)
-      i18n (~> 0.6, >= 0.6.9)
+    activesupport (4.2.0)
+      i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
-      thread_safe (~> 0.1)
+      thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     builder (3.2.2)
     capistrano (2.15.5)
@@ -36,13 +36,13 @@ GEM
     highline (1.6.21)
     hooks (0.3.6)
       uber (~> 0.0.4)
-    i18n (0.6.11)
+    i18n (0.7.0)
     json (1.8.1)
     json-ld (1.1.7)
       rdf (~> 1.1, >= 1.1.4)
     link_header (0.0.8)
     mime-types (2.4.3)
-    mini_portile (0.6.1)
+    mini_portile (0.6.2)
     minitest (5.5.0)
     mono_logger (1.1.0)
     multi_json (1.10.1)
@@ -95,7 +95,7 @@ GEM
     tilt (1.4.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    uber (0.0.11)
+    uber (0.0.12)
     vegas (0.1.11)
       rack (>= 1.0.0)
 
