@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 14e695da8941eb6878f87c91421e15c6c70e2267
+  revision: 881495b951732c4b6773d1ceb96b0f58ceedcf4c
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
@@ -37,13 +37,13 @@ GEM
     hooks (0.3.6)
       uber (~> 0.0.4)
     i18n (0.7.0)
-    json (1.8.1)
+    json (1.8.2)
     json-ld (1.1.7)
       rdf (~> 1.1, >= 1.1.4)
     link_header (0.0.8)
     mime-types (2.4.3)
     mini_portile (0.6.2)
-    minitest (5.5.0)
+    minitest (5.5.1)
     mono_logger (1.1.0)
     multi_json (1.10.1)
     net-scp (1.2.1)
