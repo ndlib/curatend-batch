@@ -1,12 +1,13 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 881495b951732c4b6773d1ceb96b0f58ceedcf4c
+  revision: 56adf0116d478e665b59377827a4adf3ddcf945f
   specs:
     rof (0.0.1.pre)
       json-ld (~> 1.1.1)
       mime-types (~> 2.4.3)
       noids_client
       rdf (~> 1.1.2)
+      rdf-rdfxml
       rubydora (~> 1.7.4)
 
 GEM
@@ -33,9 +34,12 @@ GEM
     equivalent-xml (0.5.1)
       nokogiri (>= 1.4.3)
     fastercsv (1.5.5)
+    haml (4.0.6)
+      tilt
     highline (1.6.21)
     hooks (0.3.6)
       uber (~> 0.0.4)
+    htmlentities (4.3.3)
     i18n (0.7.0)
     json (1.8.2)
     json-ld (1.1.7)
@@ -65,6 +69,21 @@ GEM
     rake (10.4.2)
     rdf (1.1.7)
       link_header (~> 0.0, >= 0.0.8)
+    rdf-aggregate-repo (1.1.0)
+      rdf (>= 1.1)
+    rdf-rdfa (1.1.5)
+      haml (~> 4.0)
+      htmlentities (~> 4.3)
+      rdf (~> 1.1, >= 1.1.6)
+      rdf-aggregate-repo
+      rdf-xsd (~> 1.1)
+    rdf-rdfxml (1.1.3)
+      htmlentities (~> 4.3)
+      rdf (~> 1.1, >= 1.1.6)
+      rdf-rdfa (~> 1.1, >= 1.1.4.1)
+      rdf-xsd (~> 1.1)
+    rdf-xsd (1.1.2)
+      rdf (~> 1.1)
     redis (3.2.0)
     redis-namespace (1.5.1)
       redis (~> 3.0, >= 3.0.4)
@@ -95,7 +114,7 @@ GEM
     tilt (1.4.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    uber (0.0.12)
+    uber (0.0.13)
     vegas (0.1.11)
       rack (>= 1.0.0)
 
