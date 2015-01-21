@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Add the items to the appropriate collections.
+#
+# We just send the correct JSON data to the application, and
+# rely on the application to do the work.
+
+scriptdir=$(cd $(dirname $0); pwd)
+source $scriptdir/conf
+
+for f in "$JOBPATH"/metadata-*.collection; do
+	if [ ! -e $f ]; then
+		# unlike the ROF case, it is not an error to have no collection files
+		echo "No collection files in job directory"
+		exit
+	fi
+
+	code=$(curl -k -o /dev/null -s -S -w '%{http_code}' $curate_url/admin/add_to_collection -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$f")
+	if [ $code != 200 ] ; then
+		echo "Problem contacting the curate server."
+		echo " Uploading file: $f"
+		echo " Received code:  $code"
+		exit 1
+	fi
+done
