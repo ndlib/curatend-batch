@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"syscall"
 
 	"github.com/ndlib/curatend-batch/batchs"
@@ -101,6 +102,10 @@ func main() {
 	if pidfilename != "" {
 		writePID(pidfilename)
 	}
+
+	sig := make(chan os.Signal, 5)
+	signal.Notify(sig)
+	go signalHandler(sig, logw)
 
 	ctx := batchs.NewContext(*queuepath, *taskpath)
 	ctx.Run()
