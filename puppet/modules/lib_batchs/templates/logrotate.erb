@@ -6,6 +6,6 @@
     compress
     sharedscripts
     postrotate
-        /bin/kill -USR1 $(cat <%= @batchs_root %>/batchs.pid) 2>/dev/null) 2>/dev/null || :
+        /bin/kill -USR1 $(cat <%= @batchs_root %>/batchs.pid) 2>/dev/null || :
     endscript
 }
