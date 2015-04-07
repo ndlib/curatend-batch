@@ -8,6 +8,7 @@ if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; th
     # no rof files, so process any csv files
     echo 'addtask:csv-to-rof' >> $JOBCONTROL
 fi
+echo 'addtask:work-xlat' >> $JOBCONTROL
 echo 'addtask:assign-pids' >> $JOBCONTROL
 echo 'addtask:date-stamp' >> $JOBCONTROL
 echo 'addtask:validate' >> $JOBCONTROL

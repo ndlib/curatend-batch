@@ -14,7 +14,7 @@ for f in "$JOBPATH"/metadata-*.rof; do
         exit 1
     fi
 
-    temp_file=$f.ids
+    temp_file="$f.ids"
 
     if ! cat $f | jq '[.[]|select(.type == "fobject")|.pid]' > $temp_file; then
         echo "Problem parsing $f"
