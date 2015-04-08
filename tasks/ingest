@@ -6,4 +6,14 @@ scriptdir=$(cd $(dirname $0); pwd)
 source $scriptdir/conf
 
 cd $gemfile_dir
-exec su app -c "bundle exec rof ingest --fedora $fedora_url --user $fedora_user:$fedora_pass --path '$JOBPATH' '$JOBPATH'/*.rof"
+for rof_file in "$JOBPATH"/metadata-*.rof; do
+    if [ ! -e $rof_file ]; then
+        echo "No ROF files in job directory"
+        exit 1
+    fi
+
+    echo "$rof_file"
+    if ! su app -c "bundle exec rof ingest --fedora $fedora_url --user $fedora_user:$fedora_pass --path '$JOBPATH' '$rof_file'"
+        exit 1
+    fi
+done
