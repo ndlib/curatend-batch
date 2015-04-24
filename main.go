@@ -108,10 +108,14 @@ func main() {
 	go signalHandler(sig, logw)
 
 	ctx := batchs.NewContext(*queuepath, *taskpath)
-	ctx.Run()
+	err := ctx.Run()
 
 	if pidfilename != "" {
 		// we don't care if there is an error
 		os.Remove(pidfilename)
+	}
+
+	if err != nil {
+		os.Exit(2)
 	}
 }

@@ -149,7 +149,7 @@ func (ctx *Context) scanAndLoad() error {
 			log.Printf("Processing job %s", finfo.Name())
 			err = ctx.start(finfo.Name())
 			if err != nil {
-				log.Println("scanAndLoad:", err)
+				return err
 			}
 		}
 	}
@@ -160,7 +160,7 @@ const (
 	pollDuration = 5 * time.Second
 )
 
-// WatchDir returns when new files are added to the directory `dirname` (or an error).
+// WatchDir watches the directory dirname and returns when new files are added or there is an error.
 func (ctx *Context) watchDir(dirname string) error {
 	dname := path.Join(ctx.basepath, dirname)
 	info, err := os.Stat(dname)
@@ -174,9 +174,10 @@ loop:
 	for {
 		select {
 		case <-tick.C:
-			newInfo, err := os.Stat(dname)
+			var newInfo os.FileInfo
+			newInfo, err = os.Stat(dname)
 			if err != nil {
-				log.Println(err)
+				break loop
 			}
 			if newInfo.ModTime().After(info.ModTime()) {
 				break loop
@@ -184,7 +185,7 @@ loop:
 		}
 	}
 	tick.Stop()
-	return nil
+	return err
 }
 
 // resolve a job name into a path, or error.
@@ -223,50 +224,91 @@ var (
 	}
 )
 
-// Run starts a goroutine to watch the queue directory, and goroutines to handle
-// the Job processing. The argument is the maximum number of simultaneous jobs.
-func (ctx *Context) Run() {
+const (
+	numRetries = 10
+	retryDelay = 10 * time.Second
+)
+
+// Run ensures the required directories are present,
+// and returns any old processing jobs to the queue.
+// It will then watch the queue directory, running jobs when needed.
+//
+// To account with NFS filesystems, it will retry operations on errors,
+// up to a maximum of 10 times. If too many errors happen in a row, this
+// function will return.
+func (ctx *Context) Run() error {
+	const timeout = retryDelay * time.Duration(numRetries+1)
+	var errCount int
+	var mark = time.Now()
+	for {
+		err := ctx.run()
+		if err == nil {
+			// run is returning without error??? okay dokey.
+			return nil
+		}
+		log.Println("Run:", err)
+		if time.Now().After(mark) {
+			// mark has expired. reset everything.
+			errCount = 0
+			mark = time.Now().Add(timeout)
+			log.Printf("Resetting mark to %v\n", mark)
+		}
+		errCount++
+		log.Println("Error Count:", errCount)
+		if errCount >= numRetries {
+			return err
+		}
+		time.Sleep(retryDelay)
+	}
+}
+
+func (ctx *Context) run() error {
+	err := ctx.initDirs()
+	if err != nil {
+		return err
+	}
 	for {
 		// see if there are any jobs in the queue
 		if err := ctx.scanAndLoad(); err != nil {
-			log.Println("Run:", err)
-			break
+			log.Println("scanAndLoad:", err)
+			return err
 		}
 
 		// wait for jobs to appear
 		if err := ctx.watchDir("queue"); err != nil {
 			// an error?
 			log.Println("watchDir:", err)
-			break
+			return err
 		}
 	}
 }
 
-// NewContext creates a new context structure, ensures the required directories
-// are present, and returns any old processing jobs to the queue.
+// NewContext creates a new context structure.
 // taskpath is used to resolve task names into commands.
 func NewContext(basepath, taskpath string) *Context {
 	ctx := &Context{basepath: basepath, taskpath: taskpath}
-	ctx.initDirs()
 	return ctx
 }
 
-func (ctx *Context) initDirs() {
+func (ctx *Context) initDirs() error {
 	// do the directories exist?
 	for _, subdir := range subdirs {
-		os.MkdirAll(path.Join(ctx.basepath, subdir), 0744)
+		err := os.MkdirAll(path.Join(ctx.basepath, subdir), 0744)
+		if err != nil {
+			return err
+		}
 	}
 
 	// return any jobs in processing directory to the queue
 	fnames, err := ctx.listJobs("processing")
 	if err != nil {
-		log.Println(err)
-		return
+		return err
 	}
 	for _, finfo := range fnames {
 		err = ctx.move(finfo.Name(), "processing", "queue")
 		if err != nil {
-			log.Println(err)
+			return err
 		}
 	}
+	return nil
 }
