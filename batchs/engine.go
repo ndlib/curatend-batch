@@ -104,8 +104,7 @@ func (ctx *Context) start(name string) error {
 	}
 	jb, err := ctx.load("processing", name)
 	if err != nil {
-		// try to move it---ignore any errors
-		ctx.move(name, "processing", "error")
+		ctx.move_rename(name, "processing", "error")
 		return err
 	}
 
@@ -116,14 +115,15 @@ func (ctx *Context) start(name string) error {
 	}
 
 	err = jb.process()
-
 	err2 := ctx.save("processing", jb)
 	if err != nil || err2 != nil {
-		ctx.move(name, "processing", "error")
+		ctx.move_rename(name, "processing", "error")
 	} else {
-		ctx.move(name, "processing", "success")
+		err2 = ctx.move_rename(name, "processing", "success")
 	}
-	return nil
+	// ignore err since it is only if there was a processing error
+	// and a processing error doesn't mean start() errored.
+	return err2
 }
 
 // Scan the queue directory and load jobs one by one until we have processed
@@ -136,7 +136,7 @@ func (ctx *Context) scanAndLoad() error {
 		if err != nil {
 			return err
 		}
-		// exit for loop when only non directories are present
+		// exit loop when only non directories are present
 		if len(dentries) <= nFiles {
 			break
 		}
@@ -160,7 +160,8 @@ const (
 	pollDuration = 5 * time.Second
 )
 
-// WatchDir watches the directory dirname and returns when new files are added or there is an error.
+// watchDir watches the directory dirname and returns when either files are
+// added or there is an error.
 func (ctx *Context) watchDir(dirname string) error {
 	dname := path.Join(ctx.basepath, dirname)
 	info, err := os.Stat(dname)
@@ -169,28 +170,24 @@ func (ctx *Context) watchDir(dirname string) error {
 	}
 
 	// since NFS mounts don't support ionotify events, lets poll
-	tick := time.NewTicker(pollDuration)
-loop:
 	for {
-		select {
-		case <-tick.C:
-			var newInfo os.FileInfo
-			newInfo, err = os.Stat(dname)
-			if err != nil {
-				break loop
-			}
-			if newInfo.ModTime().After(info.ModTime()) {
-				break loop
-			}
+		time.Sleep(pollDuration)
+		var newInfo os.FileInfo
+		newInfo, err = os.Stat(dname)
+		if err != nil {
+			break
+		}
+		if newInfo.ModTime().After(info.ModTime()) {
+			break
 		}
 	}
-	tick.Stop()
 	return err
 }
 
-// resolve a job name into a path, or error.
-// returns the full path name, and the "directory" the job is in
-func (ctx *Context) resolve(name string) (string, string, error) {
+// Resolve a job name into a path.
+// Returns the full path name, and the "directory" the job is in, or an error
+// if the name could not be resolved for some reason.
+func (ctx *Context) resolve(name string) (fullpath, directory string, err error) {
 	for _, subdir := range subdirs {
 		s := path.Join(ctx.basepath, subdir, name)
 		_, err := os.Stat(s)
@@ -202,11 +199,33 @@ func (ctx *Context) resolve(name string) (string, string, error) {
 	return "", "", fmt.Errorf("Could not find job: %s", name)
 }
 
-// move a job between status directory
+// move a job between status directories
 func (ctx *Context) move(name, srcdir, dstdir string) error {
 	src := path.Join(ctx.basepath, srcdir, name)
 	dst := path.Join(ctx.basepath, dstdir, name)
 	return os.Rename(src, dst)
+}
+
+// Move a job between status directories, possibly renaming if there
+// is a directory inside dstdir having the same name as `name`.
+func (ctx *Context) move_rename(name, srcdir, dstdir string) error {
+	// If we first check for the existence of a file and then
+	// move the directory in two steps, there is a possibility
+	// of a race condition, so we just keep trying to move
+	// the directory using different source names until one works.
+	var count = 1
+	src := path.Join(ctx.basepath, srcdir, name)
+	dst := path.Join(ctx.basepath, dstdir, name)
+	err := os.Rename(src, dst)
+	for err != nil {
+		dst = path.Join(ctx.basepath, dstdir, fmt.Sprintf("%s-%03d", name, count))
+		count++
+		err = os.Rename(src, dst)
+		if count >= 1000 {
+			break
+		}
+	}
+	return err
 }
 
 // list jobs in a given status directory
@@ -262,6 +281,7 @@ func (ctx *Context) Run() error {
 	}
 }
 
+// run the main event loop forever, returning whenever there is an error
 func (ctx *Context) run() error {
 	err := ctx.initDirs()
 	if err != nil {
