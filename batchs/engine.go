@@ -104,7 +104,10 @@ func (ctx *Context) start(name string) error {
 	}
 	jb, err := ctx.load("processing", name)
 	if err != nil {
-		ctx.move_rename(name, "processing", "error")
+		err2 := ctx.move_rename(name, "processing", "error")
+		if err2 != nil {
+			log.Printf("Error moving directory %s", err2)
+		}
 		return err
 	}
 
@@ -117,7 +120,10 @@ func (ctx *Context) start(name string) error {
 	err = jb.process()
 	err2 := ctx.save("processing", jb)
 	if err != nil || err2 != nil {
-		ctx.move_rename(name, "processing", "error")
+		err3 := ctx.move_rename(name, "processing", "error")
+		if err3 != nil {
+			log.Printf("Error moving directory %s", err3)
+		}
 	} else {
 		err2 = ctx.move_rename(name, "processing", "success")
 	}
