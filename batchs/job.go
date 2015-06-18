@@ -13,7 +13,8 @@ import (
 	"time"
 )
 
-// a Job consists of, essentially, a list of tasks.
+// Job collects all the logical consists of a single processing job.
+// It is, essentially, a list of tasks.
 type Job struct {
 	name     string         // the id of this job
 	log      *log.Logger    // logging interface to this job's LOG
@@ -22,14 +23,32 @@ type Job struct {
 	Todo     []string       // FIFO list of task names to execute
 	Finished []Task         // list of finished tasks, from earliest to latest
 	taskpath string         // location of task command files
+	state    State          // the current state of this job
 }
 
+// Task is a singular work item inside a Job.
 type Task struct {
 	Name   string
 	Start  time.Time
 	Finish time.Time
 	Status string
 }
+
+// State encodes the processing status of a Job.
+type State int
+
+const (
+	// StateUnknown is the "zero state"
+	StateUnknown State = iota
+	// StateQueue means job is awaiting processing
+	StateQueue
+	// StateProcessing means job is being processed
+	StateProcessing
+	// StateSuccess means job is finished and was successful
+	StateSuccess
+	// StateError means job is done being processed and there was an error
+	StateError
+)
 
 // Set up an envrionment and execute the given task name.
 func (jb *Job) executeTask(tskname string) Task {
@@ -110,17 +129,18 @@ func (jb *Job) readControl(fname string) error {
 		case strings.HasPrefix(ln, "addtask:"):
 			jb.Todo = append(jb.Todo, ln[8:])
 		default:
-			return fmt.Errorf("Malformed control message %s", ln)
+			return fmt.Errorf("malformed control message %s", ln)
 		}
 	}
 	return nil
 }
 
 var (
-	ProcessError = errors.New("Error running a task")
+	// ErrTask means a task had a non-zero exit code
+	ErrTask = errors.New("error running a task")
 )
 
-// process all the tasks in a Job until either there are no more tasks
+// Process all the tasks in a Job until either there are no more tasks
 // or there is an error. Tasks are removed from the Todo list as they
 // are successfully completed.
 func (jb *Job) process() error {
@@ -134,7 +154,7 @@ func (jb *Job) process() error {
 
 		jb.log.Printf("===== Status: %s", t.Status)
 		if t.Status != "ok" {
-			return ProcessError
+			return ErrTask
 		}
 
 		// only remove task if successful

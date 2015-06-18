@@ -107,7 +107,8 @@ func main() {
 	signal.Notify(sig)
 	go signalHandler(sig, logw)
 
-	ctx := batchs.NewContext(*queuepath, *taskpath)
+	fs := batchs.NewFileQueue(*queuepath)
+	ctx := batchs.NewContext(fs, *taskpath)
 	err := ctx.Run()
 
 	if pidfilename != "" {
