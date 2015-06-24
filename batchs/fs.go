@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -174,30 +175,49 @@ func (fq *fileQueue) load(dir, name string) (*Job, error) {
 		path:  jobpath,
 	}
 	// open the log first, so if there is an error there is a place to put it
-	result.logfile, err = os.OpenFile(path.Join(jobpath, "LOG"),
+	result.logfile, err = os.OpenFile(
+		path.Join(jobpath, "LOG"),
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
 		0664)
-	if err != nil {
-		return result, err
+	if err == nil {
+		result.log = log.New(result.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds)
+		err = loadJobFile(result)
 	}
-	result.log = log.New(result.logfile, "", log.Ldate|log.Ltime|log.Lmicroseconds)
-	jobfile, err := os.Open(path.Join(jobpath, "JOB"))
+	// always try to load webhooks, even if there was an error.
+	err2 := loadWebhooks(result)
+	if err2 != nil && result.log != nil {
+		result.log.Println("Error opening WEBHOOK file:", err2)
+	}
+	return result, err
+}
+
+// overwrites jb with the contents of its JOB file
+func loadJobFile(jb *Job) error {
+	jobfile, err := os.Open(path.Join(jb.path, "JOB"))
 	if err != nil {
 		if os.IsNotExist(err) {
 			// it is okay if there is no JOB file
-			return result, nil
+			return nil
 		}
-		// not okay if there is a JOB file and we cannot read it
-		result.log.Println("Error opening JOB file:", err)
-		return result, err
+		jb.log.Println("Error opening JOB file:", err)
+		return err
 	}
 	defer jobfile.Close()
 	dec := json.NewDecoder(jobfile)
-	err = dec.Decode(result)
+	err = dec.Decode(jb)
 	if err != nil {
-		result.log.Println("Error reading JOB file:", err)
+		jb.log.Println("Error reading JOB file:", err)
 	}
-	return result, err
+	return err
+}
+
+// replace the webhooks in jb with those in the given "WEBHOOK" filej
+func loadWebhooks(jb *Job) error {
+	contents, err := ioutil.ReadFile(path.Join(jb.path, "WEBHOOK"))
+	if err == nil {
+		jb.webhooks = strings.Split(string(contents), "\n")
+	}
+	return err
 }
 
 // NewFileQueue creates a new FileQueue JobSource having its state

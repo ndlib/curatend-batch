@@ -24,6 +24,7 @@ type Job struct {
 	Finished []Task         // list of finished tasks, from earliest to latest
 	taskpath string         // location of task command files
 	state    State          // the current state of this job
+	webhooks []string       // webhooks to call on state changes
 }
 
 // Task is a singular work item inside a Job.
@@ -161,4 +162,21 @@ func (jb *Job) process() error {
 		jb.Todo = jb.Todo[1:]
 	}
 	return nil
+}
+
+func (s State) String() string {
+	switch s {
+	default:
+		fallthrough
+	case StateUnknown:
+		return "unknown"
+	case StateQueue:
+		return "queue"
+	case StateProcessing:
+		return "processing"
+	case StateSuccess:
+		return "success"
+	case StateError:
+		return "error"
+	}
 }

@@ -12,6 +12,7 @@ import (
 type Context struct {
 	taskpath string    // the path to the directory mapping task names to commands
 	q        JobSource // the source of new jobs to run
+	version  string    // the version of this server (passed in)
 }
 
 // Run the main event loop forever. Errors are logged.
@@ -33,6 +34,8 @@ func (ctx *Context) Run() error {
 			time.Sleep(1 * time.Second)
 			continue
 		}
+		// run webhook for "processing" state
+		ctx.callWebhooks(jb)
 		// setup the job structure
 		jb.taskpath = ctx.taskpath
 		jb.state = StateError // assume there was an error
@@ -46,6 +49,7 @@ func (ctx *Context) Run() error {
 				jb.state = StateSuccess
 			}
 		}
+		ctx.callWebhooks(jb)
 		err = ctx.q.FinishJob(jb)
 		if err != nil {
 			log.Println("FinishJob:", err)
@@ -55,6 +59,10 @@ func (ctx *Context) Run() error {
 
 // NewContext creates a new context structure.
 // taskpath is used to resolve task names into commands.
-func NewContext(q JobSource, taskpath string) *Context {
-	return &Context{q: q, taskpath: taskpath}
+func NewContext(q JobSource, taskpath, version string) *Context {
+	return &Context{
+		q:        q,
+		taskpath: taskpath,
+		version:  version,
+	}
 }
