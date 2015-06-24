@@ -34,6 +34,7 @@ func (ctx *Context) Run() error {
 			time.Sleep(1 * time.Second)
 			continue
 		}
+		log.Printf("Processing job %s", jb.name)
 		// run webhook for "processing" state
 		ctx.callWebhooks(jb)
 		// setup the job structure
