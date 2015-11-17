@@ -10,7 +10,7 @@ and readable, each URL will be called in sequence whenever the state changes
 for that job.
 
 2. The URIs may use HTTP Basic auth. If so then use the form:
-https://user@password:example.com/whatever?q=blah The URIs may have query
+https://user:password@example.com/whatever?q=blah The URIs may have query
 parameters. If a url does not start with "http" or "https", the string
 "http://" is prefixed.
 
