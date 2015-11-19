@@ -30,6 +30,7 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 		State:   jb.state.String(),
 	}
 	m.Host, _ = os.Hostname()
+	// send the contents of the job's log file for errors
 	if jb.state == StateError {
 		var err error
 		m.Log, err = ctx.logfileForJob(jb)
@@ -42,6 +43,7 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 		log.Println("callWebhooks:", err)
 		return err
 	}
+	// Reuse this buffer to send the same message to each webhook
 	reader := bytes.NewReader(buffer)
 	for _, url := range jb.webhooks {
 		if url == "" {
@@ -55,11 +57,14 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 		if err != nil {
 			log.Printf("callWebhooks: %s: %s: %s\n", jb.name, url, err.Error())
 			if jb.log != nil {
-				jb.log.Printf("Webhook: %s: %s\n", url, err.Error())
+				jb.log.Printf("== Webhook: %s: %s\n", url, err.Error())
 			}
 		} else {
 			// don't care about response, but we need to close it
 			r.Body.Close()
+			if jb.log != nil {
+				jb.log.Printf("== Webhook: %s .. %d", url, r.StatusCode)
+			}
 		}
 	}
 	return nil
