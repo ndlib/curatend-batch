@@ -216,6 +216,9 @@ func loadWebhooks(jb *Job) error {
 	contents, err := ioutil.ReadFile(path.Join(jb.path, "WEBHOOK"))
 	if err == nil {
 		jb.webhooks = strings.Split(string(contents), "\n")
+	} else if os.IsNotExist(err) {
+		// don't care if the file is missing
+		err = nil
 	}
 	return err
 }
