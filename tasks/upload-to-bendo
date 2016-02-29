@@ -10,8 +10,11 @@ source $scriptdir/conf
 
 for item in "$JOBPATH"/TO_TAPE/*; do
 
-	echo "ITEM"
-	echo $item
+	if [ ! -e $item ]; then
+	     echo "No items in TO_TAPE directory"
+     	     exit 1
+	fi
+
 	/opt/bendo/gocode/bin/bclient -token $bclient_api_key -server $bendo_url -root $item upload $(basename $item) .
 
 	if [ $? -ne 0 ]; then
