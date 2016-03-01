@@ -14,6 +14,7 @@ echo 'addtask:date-stamp' >> $JOBCONTROL
 echo 'addtask:validate' >> $JOBCONTROL
 echo 'addtask:extract-collections' >> $JOBCONTROL
 echo 'addtask:move-files-for-bendo' >> $JOBCONTROL
+echo 'addtask:upload-to-bendo' >> $JOBCONTROL
 echo 'addtask:ingest' >> $JOBCONTROL
 echo 'addtask:index' >> $JOBCONTROL
 echo 'addtask:characterize' >> $JOBCONTROL
