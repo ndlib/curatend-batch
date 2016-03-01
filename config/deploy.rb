@@ -112,7 +112,7 @@ namespace :und do
   def run_puppet(options={})
     local_module_path = File.join(release_path, 'puppet', 'modules')
     option_string = options.map { |k,v| "#{k} => '#{v}'" }.join(', ')
-    run %Q{sudo puppet apply --modulepath=#{local_module_path}:/global/puppet_standalone/modules:/etc/puppet/modules -e "class { 'lib_curatend_batch': #{option_string} }"}
+    run %Q{sudo puppet apply --modulepath=#{local_module_path}:/global/puppet_standalone/modules:/etc/puppet/modules:/etc/puppet/environments/production/modules -e "class { 'lib_curatend_batch': #{option_string} }"}
   end
 
   desc "Run puppet using the modules supplied by the application"
