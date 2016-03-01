@@ -15,7 +15,7 @@ for item in "$JOBPATH"/TO_TAPE/*; do
      	     exit 1
 	fi
 
-	/opt/bendo/gocode/bin/bclient -token $bclient_api_key -server $bendo_url -root $item upload $(basename $item) .
+	/opt/batchs/bin/bclient -token $bclient_api_key -server $bendo_url -root $item upload $(basename $item) .
 
 	if [ $? -ne 0 ]; then
 	      exit 1
