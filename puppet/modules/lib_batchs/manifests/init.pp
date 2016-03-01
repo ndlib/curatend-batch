@@ -30,7 +30,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 
         #install bendo bclient into batchs_root
 
-	class { 'lib_go':
+	class { 'lib_go::build':
 		repo => 'github.com/ndlib/bendo',
 		goroot => "${batchs_root}",
 		target => "github.com/bendo/cmd/bclient",
