@@ -18,15 +18,15 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		ensure => present,
 	}
 
-	file {  'batch_root':
-                path => [ "$batchs_root", "${batchs_root}/log" ],
+	file {  'batch_root_log':
+		path => "${batchs_root}/log",
 		ensure => directory,
-		require => Package[$pkglist],
+		require => Class['lib_go::build'],
 	}
 
 	exec { "Build-batchs-from-repo":
 		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get -u github.com/ndlib/curatend-batch\"",
-		require => File['batch_root'],
+		require => File['batch_root_log'],
 	}
 
         #install bendo bclient into batchs_root
@@ -34,8 +34,8 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	class { 'lib_go::build':
 		repo => 'github.com/ndlib/bendo',
 		goroot => "${batchs_root}",
-		target => "github.com/bendo/cmd/bclient",
-		require => File['batchs_root'],
+		target => "github.com/ndlib/bendo/cmd/bclient",
+		require => Package[$pkglist],
 	}
 
 	file { 'batchs.conf':
