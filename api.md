@@ -3,7 +3,7 @@ Batch Ingest API RFC
 
 This document describes an new HTTP based API to the batch ingest service. This
 API is not intended to replace the file-system based API the batch ingest
-currently uses. This API is intented to provide a convinent, non-file system
+currently uses. This API is intended to provide a convenient, non-file system
 based, way for other services to create and check on batch jobs. It is intended
 to be used for jobs with only a modest number of files and modestly sized
 files.
@@ -21,7 +21,7 @@ is ignored--all responses are sent as `application/json`.
 
     GET /jobs
 
-This returns a json array listing the names of all the jobs, regardless of
+This returns a JSON array listing the names of all the jobs, regardless of
 their status. It probably should have pagination, but doesn't. Example:
 
     GET /jobs
@@ -32,7 +32,7 @@ their status. It probably should have pagination, but doesn't. Example:
 
     Get /jobs/:jobid
 
-This request returns the job's information as a json object. Example:
+This request returns the job's information as a JSON object. Example:
 
     GET /jobs/test2
 
