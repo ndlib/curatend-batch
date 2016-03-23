@@ -45,7 +45,7 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 	enc.Encode(jobs)
 }
 
-// ItemHandler handles requests to GET /jobs/:id
+// GetJobIdHandler handles requests to GET /jobs/:id
 // Returns 404 if job id not found
 //         200 + Json { "Name": id, "Status": [ success, error, queue, processing, ready ] }
 
@@ -77,3 +77,26 @@ func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 	fmt.Fprintln(w, errors.New("No Job Id Found"))
 }
 
+// PutJobIdHandler handles requests to PUT /jobs/:id
+// Returns 200 if id directory can be created under data
+//         403 if it cannot (already exists)
+
+func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	id := ps.ByName("id")
+
+	jobPath := path.Join(s.QueuePath.basepath, "data", id)
+
+	if _, err := os.Stat(jobPath); err == nil {
+		w.WriteHeader(403)
+		fmt.Fprintln(w, errors.New("Job Already Exists"))
+		return
+	}
+
+	err2 := os.Mkdir(jobPath, 0744)
+
+	if err2 != nil {
+		w.WriteHeader(403)
+		fmt.Fprintln(w, errors.New("Error Creating Job  "))
+	}
+}
