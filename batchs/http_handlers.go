@@ -103,26 +103,64 @@ func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 
 func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-        var jobdirs = []string{
-                "success",
-                "error",
-                "data",
-        }
+	var jobdirs = []string{
+		"success",
+		"error",
+		"data",
+	}
 
 	id := ps.ByName("id")
-
 
 	// Remove job id wherever it's found
 
 	for _, dir := range jobdirs {
- 
-		jobPath := path.Join(s.QueuePath.basepath, dir , id)
 
-		err :=  os.RemoveAll(jobPath)
+		jobPath := path.Join(s.QueuePath.basepath, dir, id)
+
+		err := os.RemoveAll(jobPath)
 
 		if err != nil {
 			w.WriteHeader(500)
 			fmt.Fprintln(w, err.Error())
 		}
 	}
+}
+
+// SubmitJobIdHandler handles requests to POST /jobs/:id
+// Returns 200 if id directory was queued from one  of [data, error, success],  in that order
+//         500 if something went wrong
+//         404 if the job id was not found  in any of the searched directories
+
+func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	var jobdirs = []string{
+		"data",
+		"error",
+		"success",
+	}
+
+	id := ps.ByName("id")
+
+	// Remove job id wherever it's found
+
+	for _, dir := range jobdirs {
+
+		jobPath := path.Join(s.QueuePath.basepath, dir, id)
+
+		if _, err := os.Stat(jobPath); err == nil {
+
+			err2 := s.QueuePath.move(id, dir, "queue")
+
+			if err2 != nil {
+				w.WriteHeader(500)
+				fmt.Fprintln(w, err.Error())
+			}
+
+			return
+		}
+	}
+
+	// if we got this far, the job id given did not exist
+	w.WriteHeader(404)
+	fmt.Fprintln(w, errors.New("Job Id Not Found"))
 }
