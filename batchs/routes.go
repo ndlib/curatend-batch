@@ -53,7 +53,7 @@ func (s *RESTServer) addRoutes() http.Handler {
 		{"GET", "/jobs", s.GetJobsHandler},
 		{"GET", "/jobs/:id", s.GetJobIdHandler},
 		{"PUT", "/jobs/:id", s.PutJobIdHandler},
-		{"POST", "/item/:id/transaction", NotImplementedHandler},
+		{"DELETE", "/jobs/:id", s.DeleteJobIdHandler},
 		{"GET", "/transaction", NotImplementedHandler},
 		{"GET", "/transaction/:tid", NotImplementedHandler},
 		{"POST", "/transaction/:tid/cancel", NotImplementedHandler}, //keep?

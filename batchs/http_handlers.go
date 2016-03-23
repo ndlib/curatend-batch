@@ -20,10 +20,6 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 
 	for _, dir := range subdirs {
 
-		if dir == "data" {
-			continue
-		}
-
 		// list jobs in each directory, adding them to jobs array
 
 		inThisDir, err := s.QueuePath.listJobs(dir)
@@ -98,5 +94,35 @@ func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 	if err2 != nil {
 		w.WriteHeader(403)
 		fmt.Fprintln(w, errors.New("Error Creating Job  "))
+	}
+}
+
+// DeleteJobIdHandler handles requests to DELETE /jobs/:id
+// Returns 200 if id directory was deleted in one or more of [success, error, data], or doesn't exist
+//         500 if something went wrong
+
+func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+        var jobdirs = []string{
+                "success",
+                "error",
+                "data",
+        }
+
+	id := ps.ByName("id")
+
+
+	// Remove job id wherever it's found
+
+	for _, dir := range jobdirs {
+ 
+		jobPath := path.Join(s.QueuePath.basepath, dir , id)
+
+		err :=  os.RemoveAll(jobPath)
+
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Fprintln(w, err.Error())
+		}
 	}
 }
