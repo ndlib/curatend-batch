@@ -235,6 +235,7 @@ var (
 		"processing",
 		"success",
 		"error",
+		"data",
 	}
 )
 

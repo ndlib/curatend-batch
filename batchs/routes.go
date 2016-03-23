@@ -51,12 +51,8 @@ func (s *RESTServer) addRoutes() http.Handler {
 		handler httprouter.Handle
 	}{
 		{"GET", "/jobs", s.GetJobsHandler},
-		{"HEAD", "/blob/:id/:bid", NotImplementedHandler},
+		{"GET", "/jobs/:id", s.GetJobIdHandler},
 		{"GET", "/item/:id/*slot", NotImplementedHandler},
-		{"HEAD", "/item/:id/*slot", NotImplementedHandler},
-		{"GET", "/item/:id", NotImplementedHandler},
-
-		// all the transaction things.
 		{"POST", "/item/:id/transaction", NotImplementedHandler},
 		{"GET", "/transaction", NotImplementedHandler},
 		{"GET", "/transaction/:tid", NotImplementedHandler},
