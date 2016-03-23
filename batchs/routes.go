@@ -20,7 +20,7 @@ import (
 type RESTServer struct {
 	// Port number to run bendo on. defaults to 15000
 	PortNumber string
-	QueuePath string
+	QueuePath  *fileQueue
 }
 
 // the number of active commits onto tape we allow at a given time
@@ -34,7 +34,7 @@ func (s *RESTServer) Run() error {
 	log.Printf("PortNumber = %s", s.PortNumber)
 	log.Printf("QueuePath = %s", s.QueuePath)
 
-	err := http.ListenAndServe(":" + s.PortNumber, s.addRoutes()) 
+	err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
 
 	if err != nil {
 		log.Println(err)
@@ -50,9 +50,7 @@ func (s *RESTServer) addRoutes() http.Handler {
 		route   string
 		handler httprouter.Handle
 	}{
-		// the /blob/* routes can be removed. they are functionally the
-		// same as /item/@blob/*
-		{"GET", "/blob/:id/:bid", NotImplementedHandler},
+		{"GET", "/jobs", s.GetJobsHandler},
 		{"HEAD", "/blob/:id/:bid", NotImplementedHandler},
 		{"GET", "/item/:id/*slot", NotImplementedHandler},
 		{"HEAD", "/item/:id/*slot", NotImplementedHandler},

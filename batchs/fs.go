@@ -223,9 +223,9 @@ func loadWebhooks(jb *Job) error {
 	return err
 }
 
-// NewFileQueue creates a new FileQueue JobSource having its state
+// NewFileQueue creates a new FileQueue having its state
 // directories at basepath.
-func NewFileQueue(basepath string) JobSource {
+func NewFileQueue(basepath string) *fileQueue {
 	return &fileQueue{basepath: basepath}
 }
 
