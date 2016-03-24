@@ -230,6 +230,44 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 	}
 
 	_, err = io.Copy( fileInfo, r.Body )
+}
 
+// DeleteJobIdFileHandler implements DELETE /jobs/:id/files/*path
+// Returns 404 if data directory for given job id does not exist
 
+func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	id := ps.ByName("id")
+	filePath := ps.ByName("path")
+
+        var err error
+	var jobPath string
+
+	for _, dir := range jobdirs {
+		jobPath  = path.Join(s.QueuePath.basepath, dir , id)
+
+		if _, err = os.Stat(jobPath); os.IsNotExist(err) {
+			continue
+		} else {
+			break
+		}
+	}
+
+	// couldn't find job in any of the directories
+	if err != nil { 
+		w.WriteHeader(404)
+               	fmt.Fprintln(w, err.Error())
+		return
+	}
+
+        // from here on, fullUploadPath is the file target destination
+
+	fullDeletePath := jobPath + filePath
+
+	
+	err = os.Remove( fullDeletePath)
+
+	if err != nil { 
+                fmt.Fprintln(w, err.Error())
+	}
 }
