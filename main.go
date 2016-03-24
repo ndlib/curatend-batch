@@ -118,9 +118,7 @@ func main() {
 
 	//Start the HTTPD Server thread
 
-	go func() {
-		hs.Run()
-	}()
+	go hs.Run()
 
 	// Start the batchs server thread
 

@@ -1,9 +1,7 @@
 package batchs
 
 import (
-	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	_ "net/http/pprof" // for pprof server
@@ -22,9 +20,6 @@ type RESTServer struct {
 	PortNumber string
 	QueuePath  *fileQueue
 }
-
-// the number of active commits onto tape we allow at a given time
-const MaxConcurrentCommits = 2
 
 // Run initializes and starts all the goroutines used by the server. It then
 // blocks listening for and handling http requests.
@@ -75,21 +70,6 @@ func (s *RESTServer) addRoutes() http.Handler {
 func NotImplementedHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.WriteHeader(http.StatusNotImplemented)
 	fmt.Fprintf(w, "Not Implemented\n")
-}
-
-// writeHTMLorJSON will either return val as JSON or as rendered using the
-// given template, depending on the request header "Accept-Encoding".
-func writeHTMLorJSON(w http.ResponseWriter,
-	r *http.Request,
-	tmpl *template.Template,
-	val interface{}) {
-
-	if r.Header.Get("Accept-Encoding") == "application/json" {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		json.NewEncoder(w).Encode(val)
-		return
-	}
-	tmpl.Execute(w, val)
 }
 
 // logWrapper takes a handler and returns a handler which does the same thing,
