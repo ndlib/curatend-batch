@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -126,6 +127,13 @@ func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
+// job directories- we can do file ops in these
+var jobdirs = []string{
+		"data",
+		"error",
+		"success",
+}
+
 // SubmitJobIdHandler handles requests to POST /jobs/:id
 // Returns 200 if id directory was queued from one  of [data, error, success],  in that order
 //         500 if something went wrong
@@ -133,11 +141,6 @@ func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, 
 
 func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	var jobdirs = []string{
-		"data",
-		"error",
-		"success",
-	}
 
 	id := ps.ByName("id")
 
@@ -163,4 +166,70 @@ func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, 
 	// if we got this far, the job id given did not exist
 	w.WriteHeader(404)
 	fmt.Fprintln(w, errors.New("Job Id Not Found"))
+}
+
+// PutJobIdFileHandler implements PUT /jobs/:id/files/*path
+// Returns 404 if data directory for given job id does not exist
+
+func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	id := ps.ByName("id")
+	filePath := ps.ByName("path")
+
+        var err error
+	var jobUploadPath string
+
+	for _, dir := range jobdirs {
+		jobUploadPath  = path.Join(s.QueuePath.basepath, dir , id)
+
+		if _, err = os.Stat(jobUploadPath); os.IsNotExist(err) {
+			continue
+		} else {
+			break
+		}
+	}
+
+	// couldn't find job in any of the directories
+	if err != nil { 
+		w.WriteHeader(404)
+               	fmt.Fprintln(w, err.Error())
+		return
+	}
+
+        // from here on, fullUploadPath is the file target destination
+
+	fullUploadPath := jobUploadPath + filePath
+
+	// if there's no body, we've got nothing to upload
+	if r.Body == nil {
+                w.WriteHeader(400)
+                fmt.Fprintln(w, "no body")
+                return
+        }
+
+	// ensure that the directory path to the file is present
+	
+	err = os.MkdirAll( path.Dir( fullUploadPath), 0774)
+
+	if err != nil { 
+                w.WriteHeader(500)
+                fmt.Fprintln(w, err.Error())
+                return
+	}
+
+	// open target file- if it already exists, truncate and overwrite
+	fileInfo, err := os.OpenFile( fullUploadPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
+
+	defer fileInfo.Close()
+	defer r.Body.Close()
+
+	if err != nil { 
+                w.WriteHeader(500)
+                fmt.Fprintln(w, err.Error())
+                return
+	}
+
+	_, err = io.Copy( fileInfo, r.Body )
+
+
 }
