@@ -271,3 +271,64 @@ func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Reque
                 fmt.Fprintln(w, err.Error())
 	}
 }
+
+// GetJobIdFileHandler implements GET /jobs/:id/files/*path
+// Returns 404 if job directory, or desired file for given job, does not exist
+
+func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	id := ps.ByName("id")
+	filePath := ps.ByName("path")
+
+        var err error
+	var jobPath string
+
+	for _, dir := range jobdirs {
+		jobPath  = path.Join(s.QueuePath.basepath, dir , id)
+
+		if _, err = os.Stat(jobPath); os.IsNotExist(err) {
+			continue
+		} else {
+			break
+		}
+	}
+
+	// couldn't find job in any of the directories
+	if err != nil { 
+		w.WriteHeader(404)
+               	fmt.Fprintln(w, err.Error())
+		return
+	}
+
+        // from here on, fullDownloadPath is the file target destination
+
+	fullDownloadPath := jobPath + filePath
+
+	
+	// if the target file does not exist, return Not Found
+	if _, err = os.Stat(fullDownloadPath); os.IsNotExist(err) {
+		w.WriteHeader(404)
+                fmt.Fprintln(w, err.Error())
+		return
+	}
+
+	fileInfo, err := os.OpenFile( fullDownloadPath, os.O_RDONLY, 0664)
+
+	defer fileInfo.Close()
+
+	if err != nil {
+		w.WriteHeader(500)
+                fmt.Fprintln(w, err.Error())
+		return
+	}
+
+        w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	_, err = io.Copy( w, fileInfo)
+
+	if err != nil {
+		w.WriteHeader(500)
+                fmt.Fprintln(w, err.Error())
+		return
+	}
+}

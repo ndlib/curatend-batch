@@ -52,6 +52,7 @@ func (s *RESTServer) addRoutes() http.Handler {
 	}{
 		{"GET", "/jobs", s.GetJobsHandler},
 		{"GET", "/jobs/:id", s.GetJobIdHandler},
+		{"GET", "/jobs/:id/files/*path", s.GetJobIdFileHandler},
 		{"PUT", "/jobs/:id", s.PutJobIdHandler},
 		{"DELETE", "/jobs/:id", s.DeleteJobIdHandler},
 		{"POST", "/jobs/:id/queue", s.SubmitJobIdHandler},
