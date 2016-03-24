@@ -121,13 +121,6 @@ func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, 
 	w.WriteHeader(200)
 }
 
-// job directories- we can do file ops in these
-var jobdirs = []string{
-	"data",
-	"error",
-	"success",
-}
-
 // SubmitJobIdHandler handles requests to POST /jobs/:id
 // Returns 200 if id directory was queued from one  of [data, error, success],  in that order
 //         500 if something went wrong
@@ -137,14 +130,10 @@ func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, 
 
 	id := ps.ByName("id")
 
-	// Remove job id wherever it's found
-
 	dir := s.QueuePath.findJobDir(id)
 
 	switch dir {
-	case "data":
-	case "error":
-	case "success":
+	case "data", "error", "success":
 		jobPath := path.Join(s.QueuePath.basepath, dir, id)
 
 		if _, err := os.Stat(jobPath); err == nil {
@@ -181,13 +170,10 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 	}
 
 	var err error
-	var jobUploadPath string
 
 	dir := s.QueuePath.findJobDir(id)
 	switch dir {
-	case "queue":
-	case "processing":
-	case "":
+	case "queue", "processing", "":
 		w.WriteHeader(404)
 		fmt.Fprintln(w, err.Error())
 		return
@@ -195,7 +181,7 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 
 	// from here on, fullUploadPath is the file target destination
 
-	fullUploadPath := jobUploadPath + filePath
+	fullUploadPath := path.Join(s.QueuePath.basepath, dir, filePath)
 
 	// if there's no body, we've got nothing to upload
 	if r.Body == nil {
@@ -245,13 +231,10 @@ func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	var err error
-	var jobPath string
 
 	dir := s.QueuePath.findJobDir(id)
 	switch dir {
-	case "queue":
-	case "processing":
-	case "":
+	case "queue", "processing", "":
 		w.WriteHeader(404)
 		fmt.Fprintln(w, err.Error())
 		return
@@ -259,7 +242,7 @@ func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Reque
 
 	// from here on, fullUploadPath is the file target destination
 
-	fullDeletePath := jobPath + filePath
+	fullDeletePath := path.Join(s.QueuePath.basepath, dir, filePath)
 
 	err = os.Remove(fullDeletePath)
 
@@ -277,13 +260,10 @@ func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 	filePath := ps.ByName("path")
 
 	var err error
-	var jobPath string
 
 	dir := s.QueuePath.findJobDir(id)
 	switch dir {
-	case "queue":
-	case "processing":
-	case "":
+	case "queue", "processing", "":
 		w.WriteHeader(404)
 		fmt.Fprintln(w, err.Error())
 		return
@@ -291,7 +271,7 @@ func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 
 	// from here on, fullDownloadPath is the file target destination
 
-	fullDownloadPath := jobPath + filePath
+	fullDownloadPath := path.Join(s.QueuePath.basepath, dir, filePath)
 
 	// if the target file does not exist, return Not Found
 	if _, err = os.Stat(fullDownloadPath); os.IsNotExist(err) {

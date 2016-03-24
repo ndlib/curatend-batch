@@ -10,9 +10,9 @@ import (
 // to disk.
 // It should be promoted to an interface, probably.
 type Context struct {
-	taskpath string     // the path to the directory mapping task names to commands
-	q        *fileQueue // the source of new jobs to run
-	version  string     // the version of this server (passed in)
+	taskpath string    // the path to the directory mapping task names to commands
+	q        JobSource // the source of new jobs to run
+	version  string    // the version of this server (passed in)
 }
 
 // Run the main event loop forever. Errors are logged.
@@ -60,7 +60,7 @@ func (ctx *Context) Run() error {
 
 // NewContext creates a new context structure.
 // taskpath is used to resolve task names into commands.
-func NewContext(q *fileQueue, taskpath, version string) *Context {
+func NewContext(q JobSource, taskpath, version string) *Context {
 	return &Context{
 		q:        q,
 		taskpath: taskpath,
