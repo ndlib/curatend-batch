@@ -44,7 +44,7 @@ func (fq *fileQueue) NextJob() (*Job, error) {
 // Save the given job
 func (fq *fileQueue) FinishJob(jb *Job) error {
 	var err2 error
-	var sourceDir = fq.findJob(jb)
+	var sourceDir = fq.findJobDir(jb.name)
 	err := fq.save(jb)
 	switch {
 	case err != nil:
@@ -65,15 +65,18 @@ func (fq *fileQueue) FinishJob(jb *Job) error {
 	return err
 }
 
-// is the given job in the processing directory or the queue
-// directory? returns either "processing" or "queue"
-func (fq *fileQueue) findJob(jb *Job) string {
-	dname := path.Join(fq.basepath, "processing", jb.name)
-	_, err := os.Stat(dname)
-	if err != nil && os.IsNotExist(err) {
-		return "queue"
+// is the given job in any of the directories?
+// returns the directory name, or "" if not found
+func (fq *fileQueue) findJobDir(name string) string {
+
+	for _, dir := range subdirs {
+		dname := path.Join(fq.basepath, dir, name)
+		_, err := os.Stat(dname)
+		if err == nil {
+			return dir
+		}
 	}
-	return "processing"
+	return ""
 }
 
 // save the job to disk and close any open files inside the job structure
@@ -223,9 +226,9 @@ func loadWebhooks(jb *Job) error {
 	return err
 }
 
-// NewFileQueue creates a new FileQueue JobSource having its state
+// NewFileQueue creates a new FileQueue having its state
 // directories at basepath.
-func NewFileQueue(basepath string) JobSource {
+func NewFileQueue(basepath string) *fileQueue {
 	return &fileQueue{basepath: basepath}
 }
 
@@ -235,6 +238,7 @@ var (
 		"processing",
 		"success",
 		"error",
+		"data",
 	}
 )
 

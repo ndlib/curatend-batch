@@ -1,0 +1,82 @@
+package batchs
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	_ "net/http/pprof" // for pprof server
+
+	"github.com/julienschmidt/httprouter"
+)
+
+// RESTServer holds the configuration for a Batch REST API server.
+//
+// Set all the public fields and then call Run. Run will listen on the given
+// port and handle requests. At the moment there is no maximum simultaneous
+// request limit. Do not change any fields after calling Run.
+//
+type RESTServer struct {
+	// Port number to run bendo on. defaults to 15000
+	PortNumber string
+	QueuePath  *fileQueue
+}
+
+// Run initializes and starts all the goroutines used by the server. It then
+// blocks listening for and handling http requests.
+func (s *RESTServer) Run() error {
+	log.Println("==========")
+	log.Printf("Starting HTTP Server")
+	log.Printf("PortNumber = %s", s.PortNumber)
+	log.Printf("QueuePath = %s", s.QueuePath)
+
+	err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *RESTServer) addRoutes() http.Handler {
+	var routes = []struct {
+		method  string
+		route   string
+		handler httprouter.Handle
+	}{
+		{"GET", "/jobs", s.GetJobsHandler},
+		{"GET", "/jobs/:id", s.GetJobIdHandler},
+		{"GET", "/jobs/:id/files/*path", s.GetJobIdFileHandler},
+		{"PUT", "/jobs/:id", s.PutJobIdHandler},
+		{"DELETE", "/jobs/:id", s.DeleteJobIdHandler},
+		{"POST", "/jobs/:id/queue", s.SubmitJobIdHandler},
+		{"PUT", "/jobs/:id/files/*path", s.PutJobIdFileHandler},
+		{"DELETE", "/jobs/:id/files/*path", s.DeleteJobIdFileHandler},
+	}
+
+	r := httprouter.New()
+	for _, route := range routes {
+		r.Handle(route.method,
+			route.route,
+			logWrapper(route.handler))
+	}
+	return r
+}
+
+// General route handlers and convinence functions
+
+// NotImplementedHandler will return a 501 not implemented error.
+func NotImplementedHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.WriteHeader(http.StatusNotImplemented)
+	fmt.Fprintf(w, "Not Implemented\n")
+}
+
+// logWrapper takes a handler and returns a handler which does the same thing,
+// after first logging the request URL.
+func logWrapper(handler httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		log.Println(r.Method, r.URL)
+		handler(w, r, ps)
+	}
+}

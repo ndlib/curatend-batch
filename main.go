@@ -78,6 +78,7 @@ func main() {
 	var (
 		logw        Reopener
 		logfilename = flag.String("log", "", "name of log file")
+		portNumber  = flag.String("port", "15000", "Port Number of httpd service")
 		showVersion = flag.Bool("version", false, "Display binary version")
 		queuepath   = flag.String("queue", "test", "path to the queue directory")
 		taskpath    = flag.String("tasks", "tasks", "path to the task commands")
@@ -109,6 +110,18 @@ func main() {
 
 	fs := batchs.NewFileQueue(*queuepath)
 	ctx := batchs.NewContext(fs, *taskpath, version)
+
+	hs := batchs.RESTServer{
+		QueuePath:  fs,
+		PortNumber: *portNumber,
+	}
+
+	//Start the HTTPD Server thread
+
+	go hs.Run()
+
+	// Start the batchs server thread
+
 	err := ctx.Run()
 
 	if pidfilename != "" {
