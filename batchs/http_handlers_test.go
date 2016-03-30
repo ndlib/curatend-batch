@@ -60,25 +60,16 @@ func TestGetJobs(t *testing.T) {
 
 	// Get routes to test, and expected bodys
 
+	fileContent := []byte("this is content for Gets, baby")
+
 	getTests := []testInfo{
 		{"/jobs", "[\"testjob1\"]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
-		{"/jobs/testjob1/files/testfile1", "this is content, baby", 200},
+		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},
 	}
-
-	fileContent := []byte("this is content, baby")
 
 	// test setup
-
-	err := os.MkdirAll(path.Join(testFS, "success", "testjob1"), 0744)
-	if err != nil {
-		t.Fatalf("Could not create directory")
-	}
-
-	err = ioutil.WriteFile(path.Join(testFS, "success/testjob1/testfile1"), fileContent, 0755)
-	if err != nil {
-		t.Fatalf("Could not create file")
-	}
+	createJobFile(t, testFS, "success", "testjob1", "testfile1", fileContent)
 
 	for _, thisTest := range getTests {
 		t.Log("Testing GET ", thisTest.Url)
@@ -108,7 +99,7 @@ func TestPutJobs(t *testing.T) {
 func TestDeleteJobs(t *testing.T) {
 	t.Log("Testing DELETE /jobs/testjob3")
 
-	fileContent := []byte("this is content, baby")
+	fileContent := []byte("this is content for , baby")
 
 	// test setup
 	createJobFile(t, testFS, "data", "testjob3", "testfile1", fileContent)
