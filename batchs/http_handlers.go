@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -25,7 +26,7 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 		inThisDir, err := s.QueuePath.listJobs(dir)
 
 		if err != nil {
-			w.WriteHeader(404)
+			w.WriteHeader(500)
 			fmt.Fprintln(w, err.Error())
 			return
 		}
@@ -53,22 +54,20 @@ func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 
 	dir := s.QueuePath.findJobDir(id)
 
-	if dir != "" {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		enc := json.NewEncoder(w)
-		if dir != "data" {
-			response.Name = id
-			response.Status = dir
-		} else {
-			response.Name = id
-			response.Status = "ready"
-		}
-		enc.Encode(response)
+	if dir == "" {
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "Not Found")
 		return
 	}
-
-	w.WriteHeader(404)
-	fmt.Fprintln(w, "No Job Id Found")
+	response.Name = id
+	if dir == "data" {
+		response.Status = "ready"
+	} else {
+		response.Status = dir
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	enc := json.NewEncoder(w)
+	enc.Encode(response)
 }
 
 // PutJobIdHandler handles requests to PUT /jobs/:id
@@ -87,9 +86,9 @@ func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	err2 := os.Mkdir(jobPath, 0744)
+	err := os.Mkdir(jobPath, 0744)
 
-	if err2 != nil {
+	if err != nil {
 		w.WriteHeader(403)
 		fmt.Fprintln(w, "Error Creating Job")
 	}
@@ -117,8 +116,6 @@ func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, 
 			fmt.Fprintln(w, err.Error())
 		}
 	}
-
-	w.WriteHeader(200)
 }
 
 // SubmitJobIdHandler handles requests to POST /jobs/:id
@@ -134,23 +131,18 @@ func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, 
 
 	switch dir {
 	case "data", "error", "success":
-		jobPath := path.Join(s.QueuePath.basepath, dir, id)
-
-		if _, err := os.Stat(jobPath); err == nil {
-
-			err2 := s.QueuePath.move(id, dir, "queue")
-
-			if err2 != nil {
-				w.WriteHeader(500)
-				fmt.Fprintln(w, err.Error())
-			}
-
-			w.WriteHeader(200)
+		err := s.QueuePath.move(id, dir, "queue")
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Fprintln(w, err.Error())
 			return
 		}
+	case "queue", "processing":
+		w.WriteHeader(409)
+		fmt.Fprintln(w, "Cannot submit queued job")
 	default:
 		w.WriteHeader(404)
-		fmt.Fprintln(w, "Job Id Not Found")
+		fmt.Fprintln(w, "Not Found")
 	}
 
 }
@@ -161,39 +153,16 @@ func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, 
 func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
-	filePath := path.Clean(ps.ByName("path"))
-
-	if filePath == "." {
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "Non-Lexical File Path ")
-		return
-	}
-
-	var err error
-
-	dir := s.QueuePath.findJobDir(id)
-	switch dir {
-	case "queue", "processing", "":
-		w.WriteHeader(404)
-		fmt.Printf("findJobDir returned %s\n", dir)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-
+	filepath := ps.ByName("path")
 	// from here on, fullUploadPath is the file target destination
-
-	fullUploadPath := path.Join(s.QueuePath.basepath, dir, id, filePath)
-
-	// if there's no body, we've got nothing to upload
-	if r.Body == nil {
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "no body")
+	fullUploadPath := s.findFile(w, id, filepath)
+	if fullUploadPath == "" {
 		return
 	}
 
 	// ensure that the directory path to the file is present
 
-	err = os.MkdirAll(path.Dir(fullUploadPath), 0774)
+	err := os.MkdirAll(path.Dir(fullUploadPath), 0774)
 
 	if err != nil {
 		w.WriteHeader(500)
@@ -203,18 +172,19 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 
 	// open target file- if it already exists, truncate and overwrite
 	fileInfo, err := os.OpenFile(fullUploadPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0664)
-
-	defer fileInfo.Close()
-	defer r.Body.Close()
-
 	if err != nil {
 		w.WriteHeader(500)
 		fmt.Fprintln(w, err.Error())
 		return
 	}
+	defer fileInfo.Close()
 
 	_, err = io.Copy(fileInfo, r.Body)
-	w.WriteHeader(200)
+	if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintln(w, err.Error())
+		return
+	}
 }
 
 // DeleteJobIdFileHandler implements DELETE /jobs/:id/files/*path
@@ -223,29 +193,14 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
-	filePath := path.Clean(ps.ByName("path"))
-
-	if filePath == "." {
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "Non-Lexical File Path ")
-		return
-	}
-
-	var err error
-
-	dir := s.QueuePath.findJobDir(id)
-	switch dir {
-	case "queue", "processing", "":
-		w.WriteHeader(404)
-		fmt.Fprintln(w, err.Error())
-		return
-	}
-
+	filepath := ps.ByName("path")
 	// from here on, fullUploadPath is the file target destination
+	fullDeletePath := s.findFile(w, id, filepath)
+	if fullDeletePath == "" {
+		return
+	}
 
-	fullDeletePath := path.Join(s.QueuePath.basepath, dir, id, filePath)
-
-	err = os.Remove(fullDeletePath)
+	err := os.Remove(fullDeletePath)
 
 	if err != nil {
 		fmt.Fprintln(w, err.Error())
@@ -258,46 +213,74 @@ func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Reque
 func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
-	filePath := ps.ByName("path")
-
-	var err error
-
-	dir := s.QueuePath.findJobDir(id)
-	switch dir {
-	case "queue", "processing", "":
-		w.WriteHeader(404)
-		fmt.Fprintln(w, err.Error())
+	filepath := ps.ByName("path")
+	// from here on, fullDownloadPath is the file target destination
+	fullDownloadPath := s.findFile(w, id, filepath)
+	if fullDownloadPath == "" {
 		return
 	}
 
-	// from here on, fullDownloadPath is the file target destination
-
-	fullDownloadPath := path.Join(s.QueuePath.basepath, dir, id, filePath)
-
 	// if the target file does not exist, return Not Found
-	if _, err = os.Stat(fullDownloadPath); os.IsNotExist(err) {
+	fs, err := os.Stat(fullDownloadPath)
+	if os.IsNotExist(err) {
 		w.WriteHeader(404)
+		return
+	} else if err != nil {
+		w.WriteHeader(500)
 		fmt.Fprintln(w, err.Error())
+		return
+	}
+	if fs.IsDir() {
+		list, err := ioutil.ReadDir(fullDownloadPath)
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Fprintln(w, err.Error())
+			return
+		}
+		var result []string
+		for _, dent := range list {
+			result = append(result, dent.Name())
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		enc := json.NewEncoder(w)
+		enc.Encode(result)
 		return
 	}
 
 	fileInfo, err := os.OpenFile(fullDownloadPath, os.O_RDONLY, 0664)
-
-	defer fileInfo.Close()
-
 	if err != nil {
 		w.WriteHeader(500)
 		fmt.Fprintln(w, err.Error())
 		return
 	}
+	defer fileInfo.Close()
+	io.Copy(w, fileInfo)
+}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+// findFile takes a job id and a filepath into that job. It will sanitize the
+// filepath, and then try to resolve the path to an absolute path. It will
+// return errors directly to w as found. It does not allow any processing on
+// jobs which are in the queue or processing directory. An empty string
+// is returned if an error message is written to w.
+func (s *RESTServer) findFile(w http.ResponseWriter, id, filepath string) string {
+	filepath = path.Clean(filepath)
 
-	_, err = io.Copy(w, fileInfo)
+	if filepath == "." {
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "Non-Lexical File Path ")
+		return ""
+	}
 
-	if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintln(w, err.Error())
-		return
+	dir := s.QueuePath.findJobDir(id)
+	switch dir {
+	case "queue", "processing":
+		w.WriteHeader(409)
+		fmt.Fprintf(w, "Cannot access queued jobs")
+		return ""
+	case "":
+		w.WriteHeader(404)
+		return ""
+	default:
+		return path.Join(s.QueuePath.basepath, dir, id, filepath)
 	}
 }
