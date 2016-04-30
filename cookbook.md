@@ -90,3 +90,52 @@ belong to in its ROF under the "collections" label. For example:
 
 This work will be given a PID and then added to the collections represented by
 `und:collection1` and `und:collection2`.
+
+# Updating Item Metadata (Brute Force)
+
+One way to update an item's metadata is to alter the usual `metadata` section
+and then submit it for batch ingest. This way is preferable for items where a
+`metadata` in JSON-LD is already available. Another way is to update the
+ntriples stored for an item directly, which is much more expiedent (at least for
+now, 2016-04-30). Here is how to do it.
+
+First, download the ntriples of the item you want to update, say noid
+`1234567890b`. Replace the URL with the approprate one to reach the fedora
+instance the item is stored in.
+
+    curl https://fedora.url:0000/objects/und:1234567890b/datastreams/descMetadata/content --user fedoraAdmin:fedoraAdmin > 1234567890b.nt
+
+There should be a file `1234567890b.nt` contains the metadata in ntriples
+format. Edit the ntriples file directly (and update the `dc:modified` term if
+you are feeling generous), and then put into a directory. We need to create the
+ROF file, and that is a little complicated since we need to provide an
+ActiveFedora model and the RELS-EXT of the original item. (This is not
+straightforward, this section should be expanded. Sorry in advance for not doing
+that.) The final `metadata-1.rof` should look similar to the following:
+
+    [{
+        "pid": "1234567890b",
+        "af-model": "Etd",
+        "rels-ext":{
+            ... (TODO: fill in)
+        },
+        "descMetadata-meta" : {
+            "mimetype": "text/plain"
+        },
+        "descMetadata-file": "1234567890b.nt"
+    }]
+
+The important lines are the last four, which tell the batch ingester to replace the
+`descMetadata` datastream with the new ntriples file we have.
+
+Now create a `JOB` file in the directory with the following contents:
+
+    {
+        "Todo": ["verify", "ingest", "index"]
+    }
+
+The special `JOB` makes sure the date stamping step of the ingest process is not
+run. Submit the job, and the metadata will now be updated.
+
+(Caveat: this will need to be modified slightly for bendo...the bendo-item will
+need to be pulled from fedora and stuck into the rof file.)
