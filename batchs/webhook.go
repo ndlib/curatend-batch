@@ -3,6 +3,7 @@ package batchs
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -59,13 +60,20 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 			if jb.log != nil {
 				jb.log.Printf("== Webhook: %s: %s\n", url, err.Error())
 			}
-		} else {
-			// don't care about response, but we need to close it
-			r.Body.Close()
-			if jb.log != nil {
-				jb.log.Printf("== Webhook: %s .. %d", url, r.StatusCode)
+			continue
+		}
+		if jb.log != nil {
+			jb.log.Printf("== Webhook: %s .. %d", url, r.StatusCode)
+			// put first 4k of response body into log
+			var body bytes.Buffer
+			_, err = body.ReadFrom(io.LimitReader(r.Body, 4096))
+			jb.log.Printf("== Response body: %s", body.String())
+			if err != nil {
+				log.Printf("webhook response: %s: %s", jb.name, err.Error())
+				jb.log.Printf("== Error reading response: %s", err.Error())
 			}
 		}
+		r.Body.Close()
 	}
 	return nil
 }
