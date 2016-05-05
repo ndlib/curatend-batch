@@ -21,9 +21,18 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		require => Package[$pkglist],
 	}
 
+    # symlink to whatever the jenkis capistrano deploy checked out
+    # (to support the deploy tag used by jenkins)
+    file { 'batch_go_source':
+         path => "${batchs_root}/src/github.com/ndlib/curatend-batch",
+         ensure => link,
+         target => "/home/app/curatend-batch/current",
+         require => 'batch_root_log',
+    }
+
 	exec { "Build-batchs-from-repo":
 		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get -u github.com/ndlib/curatend-batch\"",
-		require => File[$batchs_root],
+		require => File['batch_go_source'],
 	}
 
 	file { 'batchs.conf':
