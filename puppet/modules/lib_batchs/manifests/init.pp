@@ -27,7 +27,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
          path => "${batchs_root}/src/github.com/ndlib/curatend-batch",
          ensure => link,
          target => "/home/app/curatend-batch/current",
-         require => 'batch_root_log',
+         require => File["${batchs_root}",
     }
 
 	exec { "Build-batchs-from-repo":
