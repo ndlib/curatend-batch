@@ -1,5 +1,5 @@
-gemfile_dir=.
-curate_url=https://localhost
+gemfile_dir=~/gocode/src/github.com/ndlib/curatend-batch/
+curate_url=https://localhost:3000
 curate_api_key=test
 fedora_url=localhost:8983/fedora
 fedora_user=fedoraAdmin
