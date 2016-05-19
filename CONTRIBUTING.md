@@ -14,14 +14,14 @@ brew install go jq
 > These homebrew recipes are already included [DLT dotfiles](https://github.com/ndlib/dlt-dotfiles).
 
 ### Preparing the Environment
-Go has built-in dependency management that performs functions inside the directory that is set as `$GOPATH`. Our convention for development environments is to set `$GOPATH` to `~/gocode`.
+Go has built-in dependency management. It performs functions inside a directory that is set as the `$GOPATH`. Our convention for development environments is to set `$GOPATH` to `~/gocode`.
 
 ```console
 mkdir ~/gocode
 export GOPATH='~/gocode'
 ```
 
-> If you manage your shell environment with [DLT dotfiles](https://github.com/ndlib/dlt-dotfiles) it will set this up for you.
+> If you manage your shell environment with [DLT dotfiles](https://github.com/ndlib/dlt-dotfiles) it will set up your `$GOPATH` for you.
 
 To verify that `$GOPATH` is configured correctly try:
 
@@ -39,7 +39,7 @@ go get -u github.com/ndlib/curatend-batch
 ```
 
 ### Configuring git
-The git repository configuration used by `go get` is not set up to make commits back to the project. If you will be changes to CurateND-Batch you will need to reconfigure it.
+The default configuration for git repositories created via `go get` is not set up to allow you to make commits back to the project. Before you make changes to the CurateND-batch codebase you will need to reconfigure the git repository.
 
 ```console
 cd $GOPATH/src/github.com/ndlib/curatend-batch
@@ -54,7 +54,7 @@ CurateND-Batch defines one executable `curatend-batch`. When the codebase in che
 > `$GOPATH/bin` is already included in your `$PATH` if you use [DLT dotfiles](https://github.com/ndlib/dlt-dotfiles). Otherwise you will want to call it directly `$GOPATH/bin/curatend-batch` or include `$GOPATH/bin` in you `$PATH` manually e.g. `export $PATH=$GOPATH/bin:$PATH`.
 
 #### If you have made changes locally
-To recompile the executable after you make changes use `go build`. It will create the `curatend-batch` executable at the root of the project directory. You will have to manually update the executable in `$GOPATH/bin`.
+To recompile the code after you make changes use `go build`. It will create the `curatend-batch` executable at the root of the project directory. You will have to manually update the executable in `$GOPATH/bin`.
 
 ```console
 cd $GOPATH/src/github.com/ndlib/curatend-batch/
@@ -102,6 +102,7 @@ The task runner is a combination of shell scripts, ruby scrips, and logic contai
 - [CurateND](https://github.com/ndlib/curate_nd)
 - Fedora (use the [hydra-jetty](https://github.com/projecthydra/hydra-jetty) in CurateND)
 - [curatend-batch](https://github.com/ndlib/curatend-batch)
+- [noids](https://github.com/ndlib/noids)
 - Redis (use homebrew: `brew install redis`; [DLT-dotfiles](https://github.com/ndlib/dlt-dotfiles/) does this for you)
 
 Once you have all of this running locally you can start the task runner.
