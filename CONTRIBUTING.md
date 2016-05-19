@@ -91,12 +91,14 @@ mkdir -p ~/goapps/curatend-batch/development
 ### Starting the Application
 There are two parts of the CurateND-Batch application: a job manager and a task runner.
 
-The job manager is go service, packaged as the `curatend-batch` executable. It can be run from any directory. By default it will log to STDOUT.
+#### Starting the Job Manager
+The job manager is go service, packaged as the `curatend-batch` executable. It can be run from any directory. By default it will log to STDOUT. There is a bootstrap script that will create the appropriate directories and start the services.
 
 ```console
-curatend-batch -queue=$HOME/goapps/curatend-batch/development -tasks=$GOPATH/src/github.com/ndlib/curatend-batch/tasks
+cd $GOPATH/src/github.com/ndlib/curatend-batch/ && ./boostrap.sh
 ```
 
+#### Starting the Task Runner
 The task runner is a combination of shell scripts, ruby scrips, and logic contained within the [ROF gem](https://github.com/ndlib/rof). It must be run from the `tasks` directory (the same one passed to `curatend-batch`). When it is initialized it retrieves the configuration information from `tasks/config`. It has a bunch of dependencies:
 
 - [CurateND](https://github.com/ndlib/curate_nd)
