@@ -53,7 +53,21 @@ CurateND-Batch defines one executable `curatend-batch`. When the codebase in che
 
 > `$GOPATH/bin` is already included in your `$PATH` if you use [DLT dotfiles](https://github.com/ndlib/dlt-dotfiles). Otherwise you will want to call it directly `$GOPATH/bin/curatend-batch` or include `$GOPATH/bin` in you `$PATH` manually e.g. `export $PATH=$GOPATH/bin:$PATH`.
 
-DON’T WORRY ABOUT THIS
+#### If you have made changes locally
+To recompile the executable after you make changes use `go build`. It will create the `curatend-batch` executable at the root of the project directory. You will have to manually update the executable in `$GOPATH/bin`.
+
+```console
+cd $GOPATH/src/github.com/ndlib/curatend-batch/
+go build
+mv curatend-batch $GOPATH/bin/
+```
+
+#### If you want to install the latest version from github
+If you have already pushed your changes to github or if the project has been updated and you want to install the latest version use `go get`.
+
+```console
+go get -u github.com/ndlib/curatend-batch
+```
 
 ### Installing the ROF gem
 Much of the logic performed in CurateND-batch is housed in the [ROF gem](https://github.com/ndlib/rof). It will need to be installed.
@@ -87,7 +101,7 @@ The task runner is a combination of shell scripts, ruby scrips, and logic contai
 
 - [CurateND](https://github.com/ndlib/curate_nd)
 - Fedora (use the [hydra-jetty](https://github.com/projecthydra/hydra-jetty) in CurateND)
-- [noids](https://github.com/ndlib/noids)
+- [curatend-batch](https://github.com/ndlib/curatend-batch)
 - Redis (use homebrew: `brew install redis`; [DLT-dotfiles](https://github.com/ndlib/dlt-dotfiles/) does this for you)
 
 Once you have all of this running locally you can start the task runner.
