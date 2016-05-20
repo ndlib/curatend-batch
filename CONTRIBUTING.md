@@ -110,3 +110,8 @@ The task runner is a combination of shell scripts, ruby scrips, and logic contai
 Once you have all of this running locally you can start running batch ingest jobs.
 
 > NOTE: Jobs are run in subshells that have very little configuration information. This means that jobs are unaware of ruby managers like [rvm](https://rvm.io/), [rbenv](https://github.com/rbenv/rbenv), and [chruby](https://github.com/postmodern/chruby). One way to get around this is to install the project dependencies in the “system” ruby.
+
+**Problems to resolve**
+- [x] Ruby switchers are not used by tasks
+- [ ] Tasks assume the presence of an `app` user
+- [ ] Tasks assume the ability to `su` without a password
