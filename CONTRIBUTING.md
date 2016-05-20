@@ -95,7 +95,7 @@ There are two parts of the CurateND-Batch application: a job manager and a task 
 The job manager is go service, packaged as the `curatend-batch` executable. It can be run from any directory. By default it will log to STDOUT. There is a bootstrap script that will create the appropriate directories and start the services.
 
 ```console
-cd $GOPATH/src/github.com/ndlib/curatend-batch/ && ./boostrap.sh
+cd $GOPATH/src/github.com/ndlib/curatend-batch/ && ./bootstrap.sh
 ```
 
 #### Starting the Task Runner
