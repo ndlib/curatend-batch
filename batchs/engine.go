@@ -50,6 +50,7 @@ func (ctx *Context) Run() error {
 				jb.state = StateSuccess
 			}
 		}
+		log.Printf("Done processing job %s (%s)", jb.name, jb.state)
 		ctx.callWebhooks(jb)
 		err = ctx.q.FinishJob(jb)
 		if err != nil {

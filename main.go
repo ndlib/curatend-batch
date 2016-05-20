@@ -44,6 +44,11 @@ func (li *loginfo) Reopen() {
 
 func signalHandler(sig <-chan os.Signal, logw Reopener) {
 	for s := range sig {
+		if s == syscall.SIGCHLD {
+			// each call to exec will generate a SIGCHLD when the child process exits.
+			// We don't care about them.
+			continue
+		}
 		log.Println("Received signal", s)
 		switch s {
 		case syscall.SIGUSR1:
