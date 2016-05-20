@@ -107,4 +107,6 @@ The task runner is a combination of shell scripts, ruby scrips, and logic contai
 - [noids](https://github.com/ndlib/noids)
 - Redis (use homebrew: `brew install redis`; [DLT-dotfiles](https://github.com/ndlib/dlt-dotfiles/) does this for you)
 
-Once you have all of this running locally you can start the task runner.
+Once you have all of this running locally you can start running batch ingest jobs.
+
+> NOTE: Jobs are run in subshells that have very little configuration information. This means that jobs are unaware of ruby managers like [rvm](https://rvm.io/), [rbenv](https://github.com/rbenv/rbenv), and [chruby](https://github.com/postmodern/chruby). One way to get around this is to install the project dependencies in the “system” ruby.
