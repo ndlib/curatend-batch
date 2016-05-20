@@ -12,7 +12,7 @@ import (
 )
 
 type testInfo struct {
-	Url    string
+	URL    string
 	Body   string
 	Status int
 }
@@ -26,16 +26,14 @@ var testServer *httptest.Server
 func TestMain(m *testing.M) {
 
 	testFS, _ = ioutil.TempDir("", "test-batchs")
-
-	for _, subdir := range subdirs {
-		err := os.MkdirAll(path.Join(testFS, subdir), 0744)
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
-	}
+	defer os.RemoveAll(testFS)
 
 	fileQ := NewFileQueue(testFS)
+	err := fileQ.Init()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	// Port is there to satisfy interface- won't be used
 	server := RESTServer{
@@ -51,7 +49,6 @@ func TestMain(m *testing.M) {
 
 	// clean up
 	testServer.Close()
-	os.RemoveAll(testFS)
 
 	os.Exit(ret)
 }
@@ -63,26 +60,31 @@ func TestGetJobs(t *testing.T) {
 	fileContent := []byte("this is content for Gets, baby")
 
 	getTests := []testInfo{
-		{"/jobs", "[\"testjob1\"]\n", 200},
+		{"/jobs", "[\"queuedjob\",\"testjob1\"]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
 		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},
+		{"/jobs/testjob1/files/testfile2", "", 404},
+		{"/jobs/testjob1/files/", "[\"testfile1\"]\n", 200},
+		{"/jobs/testjob1/files/something/../..", "[\"testfile1\"]\n", 200},
+		{"/jobs/non-existent/", "Not Found\n", 404},
+		{"/jobs/non-existent/files/", "", 404},
+		{"/jobs/queuedjob", "{\"Name\":\"queuedjob\",\"Status\":\"queue\"}\n", 200},
+		{"/jobs/queuedjob/", "{\"Name\":\"queuedjob\",\"Status\":\"queue\"}\n", 200},
+		{"/jobs/queuedjob/files/testfile1", "Cannot access queued jobs", 409},
 	}
 
 	// test setup
 	createJobFile(t, testFS, "success", "testjob1", "testfile1", fileContent)
+	createJobFile(t, testFS, "queue", "queuedjob", "testfile1", fileContent)
 
 	for _, thisTest := range getTests {
-		t.Log("Testing GET ", thisTest.Url)
-		testBody := getbody(t, "GET", thisTest.Url, thisTest.Status)
+		t.Log("Testing GET ", thisTest.URL)
+		testBody := getbody(t, "GET", thisTest.URL, thisTest.Status)
 
 		if testBody != thisTest.Body {
-			t.Fatalf("Received %#v, expected %#v", testBody, thisTest.Body)
+			t.Errorf("Received %#v, expected %#v", testBody, thisTest.Body)
 		}
 	}
-
-	t.Log("Testing GET /jobs/testjob1/testfile2")
-
-	checkStatus(t, "GET", "/jobs/testjob1/files/testfile2", 404)
 }
 
 func TestPutJobs(t *testing.T) {
@@ -117,7 +119,7 @@ func TestDeleteJobs(t *testing.T) {
 	checkStatus(t, "GET", "/jobs/testjob3", 404)
 }
 
-func TestPostHandler(t *testing.T) {
+func TestSubmitHandler(t *testing.T) {
 	t.Log("Testing POST /jobs/testjob4")
 
 	fileContent := []byte("this is content, baby")
@@ -126,6 +128,7 @@ func TestPostHandler(t *testing.T) {
 	createJobFile(t, testFS, "data", "testjob4", "testfile1", fileContent)
 
 	checkStatus(t, "POST", "/jobs/testjob4/queue", 200)
+	checkStatus(t, "POST", "/jobs/testjob4/queue", 409)
 	checkStatus(t, "POST", "/jobs/testjob5/queue", 404)
 }
 

@@ -99,6 +99,7 @@ func main() {
 
 	log.Println("queuepath =", *queuepath)
 	log.Println("taskpath =", *taskpath)
+	log.Println("PortNumber = ", *portNumber)
 
 	if pidfilename != "" {
 		writePID(pidfilename)
