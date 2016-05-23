@@ -1,11 +1,12 @@
-gemfile_dir=.
-curate_url=https://localhost
+# $GOPATH is not set in the subshell you must expand it manually
+gemfile_dir=$GOPATH/src/github.com/ndlib/curatend-batch
+curate_url=http://localhost:3000
 curate_api_key=test
 fedora_url=localhost:8983/fedora
 fedora_user=fedoraAdmin
 fedora_pass=fedoraAdmin
 noid_prefix=und
 noid_url=localhost:13001
-noid_pool=curate-test
+noid_pool=dev
 redis_host_port=localhost:6379
 export PATH=/usr/local/bin:/usr/bin:/bin
