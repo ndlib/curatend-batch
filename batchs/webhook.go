@@ -44,6 +44,9 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 		log.Println("callWebhooks:", err)
 		return err
 	}
+	if jb.log != nil {
+		jb.log.Printf("== Webhook body: %s", buffer)
+	}
 	// Reuse this buffer to send the same message to each webhook
 	reader := bytes.NewReader(buffer)
 	for _, url := range jb.webhooks {
