@@ -13,10 +13,10 @@ for rof_file in "$JOBPATH"/metadata-*.rof; do
 	fi
 
 	echo "$rof_file"
-	if su app -c "bundle exec rof filter label \
+	if bundle exec rof filter label \
 			--prefix $noid_prefix \
 			--noids $noid_url:$noid_pool \
-			$rof_file" > $rof_file.new; then
+			"$rof_file" > $rof_file.new; then
 		# it worked. replace original file with temp file
 		mv $rof_file.new $rof_file
 	else

@@ -14,7 +14,7 @@ for csv_file in "$JOBPATH"/metadata-*.csv; do
 
     rof_file=${csv_file%.csv}.rof
     echo "$csv_file"
-    if ! su app -c "bundle exec csv_to_rof"< $csv_file > $rof_file; then
+    if ! bundle exec csv_to_rof < $csv_file > $rof_file; then
         exit 1
     fi
 done
