@@ -3,11 +3,11 @@
 # Translate Work ROF objects into more primitive fobject objects.
 
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir/conf"
 
-cd $gemfile_dir
+cd "$gemfile_dir"
 for rof_file in "$JOBPATH"/metadata-*.rof; do
-	if [ ! -e $rof_file ]; then
+	if [ ! -e "$rof_file" ]; then
 		echo "No metadata-* rof files in job directory"
 		exit 1
 	fi
@@ -16,5 +16,5 @@ for rof_file in "$JOBPATH"/metadata-*.rof; do
 	if ! bundle exec rof filter work "$rof_file" > $rof_file.new; then
 		exit 1
 	fi
-	mv $rof_file.new $rof_file
+  mv $rof_file.new $rof_file
 done

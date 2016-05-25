@@ -1,12 +1,17 @@
-# $GOPATH is not set in the subshell you must expand it manually
-gemfile_dir=$GOPATH/src/github.com/ndlib/curatend-batch
+bclient_api_key=6hoHTdS4GzP8kGvSZLcrxIDsIuXIpBwuvsSmHP+E4zY=
+bendo_url=http://localhost:14000
 curate_url=http://localhost:3000
-curate_api_key=test
-fedora_url=localhost:8983/fedora
+curate_api_key=dev
+fedora_url=http://localhost:8983/fedora
 fedora_user=fedoraAdmin
 fedora_pass=fedoraAdmin
 noid_prefix=und
 noid_url=localhost:13001
 noid_pool=dev
 redis_host_port=localhost:6379
-export PATH=/usr/local/bin:/usr/bin:/bin
+
+# $GOPATH is not set in the subshell you must expand it manually
+gemfile_dir=$GOPATH/src/github.com/ndlib/curatend-batch
+
+# Include the path the contains the bendo executable
+export PATH=$GOPATH/bin:/usr/local/bin:/usr/bin:/bin
