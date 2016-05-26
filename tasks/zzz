@@ -4,4 +4,4 @@
 # should always fail execution
 
 echo worked
-echo $JOBPATH
+echo "$JOBPATH"
