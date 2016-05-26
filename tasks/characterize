@@ -6,11 +6,11 @@
 # Yay resque!
 
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir"/conf
 
 cd $gemfile_dir
 for f in "$JOBPATH"/metadata-*.rof; do
-  if [ ! -e $f ]; then
+  if [ ! -e "$f" ]; then
     echo "No ROF files in job directory"
     exit 1
   fi
@@ -27,5 +27,5 @@ for f in "$JOBPATH"/metadata-*.rof; do
     exit 1
   fi
 
-  rm $temp_file
+  rm "$temp_file"
 done

@@ -3,11 +3,11 @@
 # Translate CSV files into ROF files
 
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir"/conf
 
-cd $gemfile_dir
+cd "$gemfile_dir"
 for csv_file in "$JOBPATH"/metadata-*.csv; do
-  if [ ! -e $csv_file ]; then
+  if [ ! -e "$csv_file" ]; then
     echo "No metadata-* CSV files in job directory"
     exit 1
   fi

@@ -6,10 +6,10 @@
 # to the application (which then adds jobs to the background queue)
 
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir"/conf
 
 for f in "$JOBPATH"/metadata-*.rof; do
-  if [ ! -e $f ]; then
+  if [ ! -e "$f" ]; then
     echo "No ROF files in job directory"
     exit 1
   fi
@@ -22,10 +22,10 @@ for f in "$JOBPATH"/metadata-*.rof; do
   fi
 
   code=$(curl -k -o /dev/null -s -S -w '%{http_code}' $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$temp_file")
-  if [ $code != 200 ] ; then
+  if [ "$code" != 200 ] ; then
     echo "Problem contacting the curate server. Received code $code"
     exit 1
   fi
 
-  rm $temp_file
+  rm "$temp_file"
 done

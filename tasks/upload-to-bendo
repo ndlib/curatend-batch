@@ -6,11 +6,11 @@
 
 # upload configuration
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir"/conf
 
 for item in "$JOBPATH"/TO_TAPE/*; do
 
-  if [ ! -e $item ]; then
+  if [ ! -e "$item" ]; then
     echo "No items in TO_TAPE directory"
     exit 1
   fi

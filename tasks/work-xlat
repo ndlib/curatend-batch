@@ -13,8 +13,8 @@ for rof_file in "$JOBPATH"/metadata-*.rof; do
   fi
 
   echo "$rof_file"
-  if ! bundle exec rof filter work "$rof_file" > $rof_file.new; then
+  if ! bundle exec rof filter work "$rof_file" > "$rof_file".new; then
     exit 1
   fi
-  mv $rof_file.new $rof_file
+  mv "$rof_file".new "$rof_file"
 done
