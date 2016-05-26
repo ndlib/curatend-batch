@@ -16,7 +16,7 @@ for f in "$JOBPATH"/metadata-*.rof; do
         exit 1
     fi
 
-    if su app -c "bundle exec tasks/arrange-files.rb $f"; then
+    if bundle exec tasks/arrange-files.rb "$f"; then
         true
     else
         echo "error with $f"
