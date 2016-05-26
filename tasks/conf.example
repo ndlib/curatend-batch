@@ -10,7 +10,7 @@ noid_url=localhost:13001
 noid_pool=dev
 redis_host_port=localhost:6379
 
-# $GOPATH is not set in the subshell. It is expanded by bootstrap.sh.
+# $GOPATH is not set by default. It is prepended to this file by bootstrap.sh.
 gemfile_dir=$GOPATH/src/github.com/ndlib/curatend-batch
 
 # Include the path the contains the bendo executable

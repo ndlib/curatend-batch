@@ -15,10 +15,7 @@ if [ -f "$config_file" ]; then
 else
   echo "Creating a default config file"
 
-  # Escaping expanded $GOPATH
-  target=$(echo "$GOPATH" | awk '{gsub("/", "\\\\&");print}')
-
-  sed s/=\$GOPATH/="$target"/ "$config_file".example > "$config_file"
+  echo -e "GOPATH=$GOPATH\n$(cat $config_file.example)" > "$config_file"
 fi
 
 curatend-batch -queue="$BATCHDIR/development" -tasks="$GOPATH/src/github.com/ndlib/curatend-batch/tasks"
