@@ -11,15 +11,15 @@ export JOBPATH
 
 cd $gemfile_dir
 for f in "$JOBPATH"/metadata-*.rof; do
-    if [ ! -e $f ]; then
-        echo "No ROF files in job directory"
-        exit 1
-    fi
+  if [ ! -e $f ]; then
+    echo "No ROF files in job directory"
+    exit 1
+  fi
 
-    if bundle exec tasks/arrange-files.rb "$f"; then
-        true
-    else
-        echo "error with $f"
-        exit 1
-    fi
+  if bundle exec tasks/arrange-files.rb "$f"; then
+    true
+  else
+    echo "error with $f"
+    exit 1
+  fi
 done

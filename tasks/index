@@ -9,23 +9,23 @@ scriptdir=$(cd $(dirname $0); pwd)
 source $scriptdir/conf
 
 for f in "$JOBPATH"/metadata-*.rof; do
-    if [ ! -e $f ]; then
-        echo "No ROF files in job directory"
-        exit 1
-    fi
+  if [ ! -e $f ]; then
+    echo "No ROF files in job directory"
+    exit 1
+  fi
 
-    temp_file="$f.ids"
+  temp_file="$f.ids"
 
-    if ! cat $f | jq '[.[]|select(.type == "fobject")|.pid]' > $temp_file; then
-        echo "Problem parsing $f"
-        exit 1
-    fi
+  if ! cat $f | jq '[.[]|select(.type == "fobject")|.pid]' > $temp_file; then
+    echo "Problem parsing $f"
+    exit 1
+  fi
 
-    code=$(curl -k -o /dev/null -s -S -w '%{http_code}' $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$temp_file")
-    if [ $code != 200 ] ; then
-        echo "Problem contacting the curate server. Received code $code"
-        exit 1
-    fi
+  code=$(curl -k -o /dev/null -s -S -w '%{http_code}' $curate_url/admin/reindex -H "Curate-Api-Key: $curate_api_key" -H 'Content-Type: application/json' -d "@$temp_file")
+  if [ $code != 200 ] ; then
+    echo "Problem contacting the curate server. Received code $code"
+    exit 1
+  fi
 
-    rm $temp_file
+  rm $temp_file
 done

@@ -7,14 +7,14 @@ source "$scriptdir/conf"
 
 cd "$gemfile_dir"
 for rof_file in "$JOBPATH"/metadata-*.rof; do
-	if [ ! -e "$rof_file" ]; then
-		echo "No metadata-* rof files in job directory"
-		exit 1
-	fi
+  if [ ! -e "$rof_file" ]; then
+    echo "No metadata-* rof files in job directory"
+    exit 1
+  fi
 
-	echo "$rof_file"
-	if ! bundle exec rof filter work "$rof_file" > $rof_file.new; then
-		exit 1
-	fi
+  echo "$rof_file"
+  if ! bundle exec rof filter work "$rof_file" > $rof_file.new; then
+    exit 1
+  fi
   mv $rof_file.new $rof_file
 done

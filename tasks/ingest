@@ -7,17 +7,17 @@ source $scriptdir/conf
 
 cd $gemfile_dir
 for rof_file in "$JOBPATH"/metadata-*.rof; do
-    if [ ! -e $rof_file ]; then
-        echo "No ROF files in job directory"
-        exit 1
-    fi
+  if [ ! -e $rof_file ]; then
+    echo "No ROF files in job directory"
+    exit 1
+  fi
 
-    echo "$rof_file"
-    if ! bundle exec rof ingest \
-         --bendo "$bendo_url" \
-         --fedora "$fedora_url" \
-         --user "$fedora_user":"$fedora_pass" \
-         --path "$JOBPATH" "$rof_file"; then
-        exit 1
-    fi
+  echo "$rof_file"
+  if ! bundle exec rof ingest \
+    --bendo "$bendo_url" \
+    --fedora "$fedora_url" \
+    --user "$fedora_user":"$fedora_pass" \
+    --path "$JOBPATH" "$rof_file"; then
+    exit 1
+  fi
 done
