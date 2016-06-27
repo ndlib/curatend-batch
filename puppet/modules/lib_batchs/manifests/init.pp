@@ -18,15 +18,24 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		ensure => present,
 	}
 
-	file {  'batch_root_log':
-		path => "${batchs_root}/log",
+	file { [ "$batchs_root", "${batchs_root}/log", "${batchs_root}/src/github.com/ndlib" ]:
 		ensure => directory,
 		require => Class['lib_go::build'],
 	}
 
+    # symlink to whatever the jenkis capistrano deploy checked out
+    # (to support the deploy tag used by jenkins)
+    file { 'batch_go_source':
+         path => "${batchs_root}/src/github.com/ndlib/curatend-batch",
+         ensure => link,
+         target => "/home/app/curatend-batch/current",
+         force => true,
+         require => File["${batchs_root}/src/github.com/ndlib"],
+    }
+
 	exec { "Build-batchs-from-repo":
-		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get -u github.com/ndlib/curatend-batch\"",
-		require => File['batch_root_log'],
+		command => "/bin/bash -c \"export GOPATH=${batchs_root} && go get -d github.com/ndlib/curatend-batch && go install github.com/ndlib/curatend-batch\"",
+		require => File['batch_go_source'],
 	}
 
         #install bendo bclient into batchs_root

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	_ "net/http/pprof" // for pprof server
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -14,7 +13,6 @@ import (
 // Set all the public fields and then call Run. Run will listen on the given
 // port and handle requests. At the moment there is no maximum simultaneous
 // request limit. Do not change any fields after calling Run.
-//
 type RESTServer struct {
 	// Port number to run bendo on. defaults to 15000
 	PortNumber string
@@ -24,19 +22,17 @@ type RESTServer struct {
 // Run initializes and starts all the goroutines used by the server. It then
 // blocks listening for and handling http requests.
 func (s *RESTServer) Run() error {
-	log.Println("==========")
-	log.Printf("Starting HTTP Server")
-	log.Printf("PortNumber = %s", s.PortNumber)
-	log.Printf("QueuePath = %s", s.QueuePath)
+	if s.PortNumber == "" {
+		s.PortNumber = "15000"
+	}
 
 	err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
 
 	if err != nil {
 		log.Println(err)
-		return err
 	}
 
-	return nil
+	return err
 }
 
 func (s *RESTServer) addRoutes() http.Handler {
