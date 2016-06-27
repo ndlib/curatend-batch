@@ -1,5 +1,10 @@
 # CurateND-Batch
 
+[![APACHE 2
+License](http://img.shields.io/badge/APACHE2-license-blue.svg)](./LICENSE)
+[![Contributing
+Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
+
 This repository provides code to run the batch ingest infrastructure for
 [CurateND].  Most of the code to perform the actual processing is in the
 [ROF] gem.  This code provides a simple job manager.  It is a work in

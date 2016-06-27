@@ -3,19 +3,19 @@
 # Pull collection infomation out of an ROF file
 
 scriptdir=$(cd $(dirname $0); pwd)
-source $scriptdir/conf
+source "$scriptdir"/conf
 
-cd $gemfile_dir
+cd "$gemfile_dir"
 for rof_file in "$JOBPATH"/metadata-*.rof; do
-	if [ ! -e "$rof_file" ]; then
-		echo "No ROF files in job directory"
-		exit 1
-	fi
+  if [ ! -e "$rof_file" ]; then
+    echo "No ROF files in job directory"
+    exit 1
+  fi
 
-	if su app -c "bundle exec rof filter collections '$rof_file'" > "${rof_file%.rof}.collection"; then
-		echo "extracted ${rof_file%.rof}"
-	else
-		echo "error with $rof_file"
-		exit 1
-	fi
+  if bundle exec rof filter collections "$rof_file" > "${rof_file%.rof}.collection"; then
+    echo "extracted ${rof_file%.rof}"
+  else
+    echo "error with $rof_file"
+    exit 1
+  fi
 done
