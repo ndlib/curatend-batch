@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+# v1.1.5
+
+ - Collections Work
+
 # v1.1.4
 
  - Log the webhook request body
