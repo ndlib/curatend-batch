@@ -1,6 +1,5 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 461bf17bf2f59aba99f93f1070dfa70827c6f58b
   revision: e2065cc7c1c46b5afb881dc2fedf5c00e675ef76
   specs:
     rof (0.0.1.pre)
