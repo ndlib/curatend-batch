@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # Try to get a lock, and exit if someone else already has it.
 # This keeps a sync processes from spawning nd overlapping
