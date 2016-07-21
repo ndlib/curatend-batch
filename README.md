@@ -26,3 +26,7 @@ ROF process to handle the new files.  In this way most of the processing
 logic is in the ROF code, and the Go code is only concerned with monitoring
 directories and starting processes.  The Go code **does** track workflow
 steps, and provides a REST API to monitor and control the overall process.
+
+# Documentation
+
+Detailed documentation is available in a [Google Document](https://docs.google.com/document/d/1LtI4QlowI-rcJdFy3535T8417NKPU4FW-zpGi-b-XYk/edit) (ND only).
