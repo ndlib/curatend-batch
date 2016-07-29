@@ -16,11 +16,10 @@ if [ ! -e "$pid_file" ]; then
 fi
 
 # Iterate through pids- use rof fedor_to_rof to retrieve from fedora and generate rof
-for pid  in `jq '.[]' < $pid_file`; do
+for pid  in $(jq --raw-output '.[]' < $pid_file); do
 
-  this_pid=`echo $pid | sed 's/"//g'`
-  rof_file=`echo ${this_pid} | sed 's/und://'`
-  if ! bundle exec fedora_to_rof --fedora http://${fedora_url} --user "${fedora_user}:${fedora_pass}"  --outfile "$JOBPATH"/"$rof_file".rof  $this_pid; then
+  rof_file=$(echo ${pid} | sed 's/und://')
+  if ! bundle exec fedora_to_rof --fedora http://${fedora_url} --user "${fedora_user}:${fedora_pass}"  --outfile "$JOBPATH"/"$rof_file".rof  $pid; then
     exit 1
   fi
 done
