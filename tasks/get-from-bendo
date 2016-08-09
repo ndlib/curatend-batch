@@ -27,4 +27,7 @@ for pid  in $(jq --raw-output 'keys|.[]' < $pid_file ); do
     rm -rf "${JOBPATH}/FROM_TAPE"
     exit 1
   fi
+
+  # for comparison's sake, add bendo_url to bendo rof files
+  sed -i "s|bendo:|${bendo_url}|g" "${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${this_pid}.rof"
 done

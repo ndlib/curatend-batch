@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+# If there are no rof files in the job directory...
+# That's OK- just exit (JOB will go to SUCCESS)
+if [ -z $(find "$JOBPATH" -maxdepth 1 -name '*.rof' -print -quit) ]; then
+	exit 0
+fi
+
+# validate and reingest any rof into bendo
+echo 'addtask:validate' >> "$JOBCONTROL"
+echo 'addtask:move-files-for-bendo' >> "$JOBCONTROL"
+echo 'addtask:upload-to-bendo' >> "$JOBCONTROL"
