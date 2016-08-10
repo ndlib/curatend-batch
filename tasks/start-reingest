@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# reingest workflow 
+# It adds the actual work to do to the job's task list
+
+echo 'addtask:fedora-to-rof' >> "$JOBCONTROL"
+echo 'addtask:get-from-bendo' >> "$JOBCONTROL"
+echo 'addtask:compare-rof' >> "$JOBCONTROL"
+echo 'addtask:reingest-rof' >> "$JOBCONTROL"
