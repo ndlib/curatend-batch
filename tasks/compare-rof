@@ -22,8 +22,11 @@ for pid  in $(jq --raw-output 'keys|.[]' < $pid_file ); do
   this_pid=$( echo $pid | sed 's/und://')
   this_bendo=$(jq --raw-output '.[]["bendo-item"]' "${JOBPATH}/${this_pid}.rof")
 
+  # if rof compare finds a difference in a file, prefix it with metadata- so the validate step will find it- delete otherwise
   if ! bundle exec rof compare "${JOBPATH}/${this_pid}.rof" "${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${this_pid}.rof"   ; then
     rm -f ${JOBPATH}/${this_pid}.rof
+  else
+    mv ${JOBPATH}/${this_pid}.rof "${JOBPATH}/metadata-${this_pid}.rof"
   fi
 done
 
