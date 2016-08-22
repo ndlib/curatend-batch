@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	server := RESTServer{
 		QueuePath:  fileQ,
 		PortNumber: "15000",
-		Version: "testing",
+		Version:    "testing",
 	}
 
 	// start httptest server

@@ -14,7 +14,7 @@ import (
 
 // Writes the version number to the given writer.
 func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		// if it's a GET, copy the data into the response- if it's a HEAD, don't
+	// if it's a GET, copy the data into the response- if it's a HEAD, don't
 	if request.Method == "HEAD" {
 		return
 	}

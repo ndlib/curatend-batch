@@ -17,7 +17,7 @@ type RESTServer struct {
 	// Port number to run bendo on. defaults to 15000
 	PortNumber string
 	QueuePath  *fileQueue
-	Version string
+	Version    string
 }
 
 // Run initializes and starts all the goroutines used by the server. It then

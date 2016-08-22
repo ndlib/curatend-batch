@@ -120,7 +120,7 @@ func main() {
 	hs := batchs.RESTServer{
 		QueuePath:  fs,
 		PortNumber: *portNumber,
-		Version: version,
+		Version:    version,
 	}
 
 	//Start the HTTPD Server thread
