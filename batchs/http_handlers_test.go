@@ -39,6 +39,7 @@ func TestMain(m *testing.M) {
 	server := RESTServer{
 		QueuePath:  fileQ,
 		PortNumber: "15000",
+		Version: "testing",
 	}
 
 	// start httptest server
@@ -60,6 +61,7 @@ func TestGetJobs(t *testing.T) {
 	fileContent := []byte("this is content for Gets, baby")
 
 	getTests := []testInfo{
+		{"/", "CurateND Batch (testing)\n", 200},
 		{"/jobs", "[\"queuedjob\",\"testjob1\"]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
 		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},

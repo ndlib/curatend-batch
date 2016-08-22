@@ -12,6 +12,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+// Writes the version number to the given writer.
+func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	fmt.Fprintf(writer, "CurateND Batch (%s)\n", server.Version)
+}
+
 // ItemHandler handles requests to GET /jobs
 
 func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

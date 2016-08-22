@@ -17,6 +17,7 @@ type RESTServer struct {
 	// Port number to run bendo on. defaults to 15000
 	PortNumber string
 	QueuePath  *fileQueue
+	Version string
 }
 
 // Run initializes and starts all the goroutines used by the server. It then
@@ -41,6 +42,7 @@ func (s *RESTServer) addRoutes() http.Handler {
 		route   string
 		handler httprouter.Handle
 	}{
+		{"GET", "/", s.WelcomeHandler},
 		{"GET", "/jobs", s.GetJobsHandler},
 		{"GET", "/jobs/:id", s.GetJobIdHandler},
 		{"GET", "/jobs/:id/files/*path", s.GetJobIdFileHandler},
