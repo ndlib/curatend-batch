@@ -14,6 +14,10 @@ import (
 
 // Writes the version number to the given writer.
 func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		// if it's a GET, copy the data into the response- if it's a HEAD, don't
+	if request.Method == "HEAD" {
+		return
+	}
 	fmt.Fprintf(writer, "CurateND Batch (%s)\n", server.Version)
 }
 
@@ -64,13 +68,19 @@ func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 		fmt.Fprintln(w, "Not Found")
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// if it's a GET, copy the data into the response- if it's a HEAD, don't
+	if r.Method == "HEAD" {
+		return
+	}
+
 	response.Name = id
 	if dir == "data" {
 		response.Status = "ready"
 	} else {
 		response.Status = dir
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	enc := json.NewEncoder(w)
 	enc.Encode(response)
 }
@@ -242,11 +252,15 @@ func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 			fmt.Fprintln(w, err.Error())
 			return
 		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		// if it's a GET, copy the data into the response- if it's a HEAD, don't
+		if r.Method == "HEAD" {
+			return
+		}
 		var result []string
 		for _, dent := range list {
 			result = append(result, dent.Name())
 		}
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		enc := json.NewEncoder(w)
 		enc.Encode(result)
 		return
@@ -259,6 +273,10 @@ func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	defer fileInfo.Close()
+	// if it's a GET, copy the data into the response- if it's a HEAD, don't
+	if r.Method == "HEAD" {
+		return
+	}
 	io.Copy(w, fileInfo)
 }
 
