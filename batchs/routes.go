@@ -36,21 +36,21 @@ func (s *RESTServer) Run() error {
 	return err
 }
 
-func (s *RESTServer) addRoutes() http.Handler {
+func (server *RESTServer) addRoutes() http.Handler {
 	var routes = []struct {
 		method  string
 		route   string
 		handler httprouter.Handle
 	}{
-		{"GET", "/", s.WelcomeHandler},
-		{"GET", "/jobs", s.GetJobsHandler},
-		{"GET", "/jobs/:id", s.GetJobIdHandler},
-		{"GET", "/jobs/:id/files/*path", s.GetJobIdFileHandler},
-		{"PUT", "/jobs/:id", s.PutJobIdHandler},
-		{"DELETE", "/jobs/:id", s.DeleteJobIdHandler},
-		{"POST", "/jobs/:id/queue", s.SubmitJobIdHandler},
-		{"PUT", "/jobs/:id/files/*path", s.PutJobIdFileHandler},
-		{"DELETE", "/jobs/:id/files/*path", s.DeleteJobIdFileHandler},
+		{"GET", "/", server.WelcomeHandler},
+		{"GET", "/jobs", server.GetJobsHandler},
+		{"GET", "/jobs/:id", server.GetJobIdHandler},
+		{"GET", "/jobs/:id/files/*path", server.GetJobIdFileHandler},
+		{"PUT", "/jobs/:id", server.PutJobIdHandler},
+		{"DELETE", "/jobs/:id", server.DeleteJobIdHandler},
+		{"POST", "/jobs/:id/queue", server.SubmitJobIdHandler},
+		{"PUT", "/jobs/:id/files/*path", server.PutJobIdFileHandler},
+		{"DELETE", "/jobs/:id/files/*path", server.DeleteJobIdFileHandler},
 	}
 
 	r := httprouter.New()
