@@ -17,6 +17,11 @@ type testInfo struct {
 	Status int
 }
 
+type testHeadInfo struct {
+	URL    string
+	Status int
+}
+
 // Throw up a canned webserver and file system to test
 // the http calls, then run the tests
 
@@ -39,6 +44,7 @@ func TestMain(m *testing.M) {
 	server := RESTServer{
 		QueuePath:  fileQ,
 		PortNumber: "15000",
+		Version:    "testing",
 	}
 
 	// start httptest server
@@ -60,6 +66,7 @@ func TestGetJobs(t *testing.T) {
 	fileContent := []byte("this is content for Gets, baby")
 
 	getTests := []testInfo{
+		{"/", "CurateND Batch (testing)\n", 200},
 		{"/jobs", "[\"queuedjob\",\"testjob1\"]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
 		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},
@@ -84,6 +91,34 @@ func TestGetJobs(t *testing.T) {
 		if testBody != thisTest.Body {
 			t.Errorf("Received %#v, expected %#v", testBody, thisTest.Body)
 		}
+	}
+}
+
+func TestHeadJobs(t *testing.T) {
+
+	// Get routes to test, and expected bodys
+
+	fileContent := []byte("this is content for Heads, baby")
+
+	headTests := []testHeadInfo{
+		{"/", 200},
+		{"/jobs", 405},
+		{"/jobs/testjob1", 200},
+		{"/jobs/testjob1/files/testfile1", 200},
+		{"/jobs/testjob1/files/testfile2", 404},
+		{"/jobs/testjob2/files/mydir", 200},
+		{"/jobs/testjob2/files/mydir/testfile2", 200},
+	}
+
+	// test setup
+	createJobFile(t, testFS, "success", "testjob1", "testfile1", fileContent)
+	createJobFile(t, testFS, "queue", "queuedjob", "testfile1", fileContent)
+	// A little cheating here, I need to test directory behavior
+	createJobFile(t, testFS, "success", "testjob2/mydir", "testfile2", fileContent)
+
+	for _, thisTest := range headTests {
+		t.Log("Testing HEAD ", thisTest.URL)
+		checkStatus(t, "HEAD", thisTest.URL, thisTest.Status)
 	}
 }
 
