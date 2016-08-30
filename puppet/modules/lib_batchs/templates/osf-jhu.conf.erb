@@ -1,0 +1,19 @@
+{
+  "osf": {
+    "v2": {
+      "host": "api.<%= @batch_osf_host %>",
+      "port": "443",
+      "basePath": "/v2/",
+      "authHeader": "Basic <%= @batch_osf_auth %>",
+      "scheme": "https"
+    }
+  },
+  "wb": {
+    "v1": {
+      "host": "files.<%= @batch_osf_host %>",
+      "port": "443",
+      "basePath": "/v1/",
+      "scheme": "https"
+    }
+  }
+}

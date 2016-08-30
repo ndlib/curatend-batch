@@ -7,6 +7,9 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		"jq"
 	]
 	$batch_bendo_url = hiera('batch_bendo_url')
+	$batch_jhu_jar = hiera('batch_jhu_jar')
+	$batch_osf_host = hiera('batch_osf_host')
+	$batch_osf_auth = hiera('batch_osf_auth')
 	$batch_queue_dir = hiera('batch_queue_dir')
 	$fedora_passwd = hiera('fedora_passwd')
 	$batch_curate_url = hiera('batch_curate_url')
@@ -56,6 +59,29 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		source => "${batchs_root}/src/github.com/ndlib/curatend-batch/tasks",
 		recurse => true,
 		purge => true,
+	} ->
+
+	file { 'batchs/scripts':
+		name => "${batchs_root}/scripts",
+		ensure => 'directory',
+	} ->
+
+        # This fetchs the jar every time
+	remote_file { "${batchs_root}/scripts/osf-cli.jar":
+		remote_location => "${batch_jhu_jar}",
+		mode => '0755'
+	} ->
+
+	file { 'batchs/scripts/osf-cli-version':
+		name => "${batchs_root}/scripts/osf-cli-version",
+		replace => true,
+		content => template('lib_batchs/cli-version.erb'),
+	} ->
+
+	file { 'batchs/tasks/osf-conf':
+		name => "${batchs_root}/tasks/osf-cli.conf",
+		replace => true,
+		content => template('lib_batchs/osf-jhu.conf.erb'),
 	} ->
 
 	file { 'batchs/tasks/conf':
