@@ -66,10 +66,10 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		ensure => 'directory',
 	} ->
 
-	file { 'batchs/scripts/osf-cli.jar':
-		name => "${batchs_root}/scripts/osf-cli.jar",
-		replace => true,
-		source => "${batch_jhu_jar}",
+        # This fetchs the jar every time
+	remote_file { "${batchs_root}/scripts/osf-cli.jar":
+		remote_location => "${batch_jhu_jar}",
+		mode => '0755'
 	} ->
 
 	file { 'batchs/scripts/osf-cli-version':
