@@ -16,7 +16,7 @@ if [ ! -e "$osf_projects" ]; then
     exit 1
 fi
 
-if [  bundle exec osf_to_rof --project_file $osf_projects --package_dir ${JOBPATH}/FROM_OSF > "${JOBPATH}/metadata-${project_id}.rof"  -ne 0 ]   ; then
+if !  bundle exec osf_to_rof --project_file $osf_projects --package_dir ${JOBPATH}/FROM_OSF > "${JOBPATH}/metadata-${project_id}.rof" ; then
        echo "osf-to_rof failed for project ${project_id}"
        exit 1
 fi
