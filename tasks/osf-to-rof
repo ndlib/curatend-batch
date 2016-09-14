@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+# Use ROF compare to compare fedora and bendo rof files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+osf_projects="${JOBPATH}/osf_projects"
+project_id=$(jq --raw-output .project_identifier < $osf_projects )
+
+cd "$gemfile_dir"
+
+#if no packages provided, error and exit
+if [ ! -e "$osf_projects" ]; then
+    echo "No osf_projects file in job directory"
+    exit 1
+fi
+
+if [  bundle exec osf_to_rof --project_file $osf_projects --package_dir ${JOBPATH}/FROM_OSF > "${JOBPATH}/metadata-${project_id}.rof"  -ne 0 ]   ; then
+       echo "osf-to_rof failed for project ${project_id}"
+       exit 1
+fi
+
+exit 0
