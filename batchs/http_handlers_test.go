@@ -67,7 +67,7 @@ func TestGetJobs(t *testing.T) {
 
 	getTests := []testInfo{
 		{"/", "CurateND Batch (testing)\n", 200},
-		{"/jobs", "[\"queuedjob\",\"testjob1\"]\n", 200},
+		{"/jobs", "[{\"Name\":\"queuedjob\",\"Status\":\"queue\"},{\"Name\":\"testjob1\",\"Status\":\"success\"}]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
 		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},
 		{"/jobs/testjob1/files/testfile2", "", 404},

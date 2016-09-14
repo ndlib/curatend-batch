@@ -24,7 +24,7 @@ func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *ht
 // ItemHandler handles requests to GET /jobs
 
 func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var jobs []string
+	var jobs []map[string]string
 
 	// subdirs contains a list of all the batchs directories
 
@@ -41,7 +41,11 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 		}
 
 		for _, thisJob := range inThisDir {
-			jobs = append(jobs, thisJob.Name())
+			var thisJobMap map[string]string
+			thisJobMap = make(map[string]string)
+			thisJobMap["Name"] = thisJob.Name()
+			thisJobMap["Status"] = dir
+			jobs = append(jobs, thisJobMap)
 		}
 	}
 
