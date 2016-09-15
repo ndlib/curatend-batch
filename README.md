@@ -27,6 +27,15 @@ logic is in the ROF code, and the Go code is only concerned with monitoring
 directories and starting processes.  The Go code **does** track workflow
 steps, and provides a REST API to monitor and control the overall process.
 
+# Getting Started
+
+To run locally:
+
+* Make sure you have `$GOROOT` and `$GOPATH` set.
+* `cd /path/to/this/repository`
+* `go build` - This will make an executable file
+* `./curatend-batch` - Run the executable; it will by default run on port 15000
+
 # Documentation
 
 Detailed documentation is available in a [Google Document](https://docs.google.com/document/d/1LtI4QlowI-rcJdFy3535T8417NKPU4FW-zpGi-b-XYk/edit) (ND only).
