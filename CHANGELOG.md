@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+# v1.1.6
+
+ - OSF archiving tasks
+ - http REST interface for job control
+
 # v1.1.5
 
  - Collections Work
