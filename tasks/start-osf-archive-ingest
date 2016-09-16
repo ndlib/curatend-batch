@@ -4,8 +4,8 @@
 # It adds the actual work to do to the job's task list
 
 echo 'addtask:get-from-osf' >> "$JOBCONTROL"
-echo 'addtask:work-xlat' >> "$JOBCONTROL"
 echo 'addtask:osf-to-rof' >> "$JOBCONTROL"
+echo 'addtask:work-xlat' >> "$JOBCONTROL"
 echo 'addtask:assign-pids' >> "$JOBCONTROL"
 echo 'addtask:file-to-url' >> "$JOBCONTROL"
 echo 'addtask:date-stamp' >> "$JOBCONTROL"

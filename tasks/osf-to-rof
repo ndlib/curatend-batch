@@ -21,4 +21,10 @@ if !  bundle exec osf_to_rof --project_file $osf_projects --package_dir ${JOBPAT
        exit 1
 fi
 
+#If ROF construction succeeds, copy package file into top workdir, where subsequent ingest steps will expect it.
+if ! cp -f  "${JOBPATH}/FROM_OSF/${project_id}.tar.gz" "${JOBPATH}/${project_id}.tar.gz"; then
+       echo "copy of file ${project_id}.tar.gz"
+       exit 1
+fi
+
 exit 0
