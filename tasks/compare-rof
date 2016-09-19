@@ -15,18 +15,28 @@ if [ ! -e "$pid_file" ]; then
     exit 1
 fi
 
-# Iterate through pids- use rof compare to compare
-# Delete rof if identical to tape
-for pid  in $(jq --raw-output 'keys|.[]' < $pid_file ); do
+# Iterate through pids
+# Compare the rof files generated from fedora (having names of the form
+# ${noid}.rof) with the corresponding rof file downloaded from bendo (in the
+# FROM_TAPE directory). Delete the local fedora file if they are the same.
+# If different rename the fedora rof to have name metadata-${noid}.rof.
+for pid in $(jq --raw-output 'keys|.[]' "$pid_file"); do
 
-  this_pid=$( echo $pid | sed 's/und://')
-  this_bendo=$(jq --raw-output '.[]["bendo-item"]' "${JOBPATH}/${this_pid}.rof")
+  noid=$(echo $pid | sed 's/und://')
+  localrof="${JOBPATH}/${noid}.rof"
 
-  # if rof compare finds no difference (returns 0) we can delete this ROF- we won't need it
-  # if rof compare finds a difference (returns 1) prefix the rof filename with 'metadatas-' in prep for later steps
-  if [  bundle exec rof compare "${JOBPATH}/${this_pid}.rof" "${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${this_pid}.rof" -eq 0 ]   ; then
-    rm -f ${JOBPATH}/${this_pid}.rof
+  # if local rof file is missing, assume we have already processed it
+  if [ ! -e ${localrof} ]; then
+    echo "Couldn't find ${localrof}. Assuming it is already processed"
+    continue
+  fi
+
+  this_bendo=$(jq --raw-output '.[]["bendo-item"]' "${localrof}")
+  bendorof="${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${noid}.rof"
+
+  if bundle exec rof compare "${localrof}" "${bendorof}" ; then
+    rm -f "${localrof}"
   else
-    mv ${JOBPATH}/${this_pid}.rof "${JOBPATH}/metadata-${this_pid}.rof"
+    mv "${localrof}" "${JOBPATH}/metadata-${noid}.rof"
   fi
 done

@@ -12,22 +12,26 @@ if [ ! -e "$pid_file" ]; then
     echo "No fedora-pids file in job directory"
     exit 1
 fi
-#if no pids provided, error and exit
-if [ ! -e "${JOBPATH}/FROM_TAPE" ]; then
-	mkdir -p "${JOBPATH}/FROM_TAPE" 
-fi
 
-# Iterate through pids- use rof blicleint to retrieve from bendo and bendo rof under FROM_TAPE
-for pid  in $(jq --raw-output 'keys|.[]' < $pid_file ); do
+mkdir -p "${JOBPATH}/FROM_TAPE"
 
-  this_pid=$( echo $pid | sed 's/und://')
-  this_bendo=$(jq --raw-output '.[]["bendo-item"]' "${JOBPATH}/${this_pid}.rof")
+# Iterate through pids
+# look for a file ${noid}.rof, use that to get bendo path and then download the
+# bendo version of this pid's rof file into the TO_TAPE directory.
+for pid in $(jq --raw-output 'keys|.[]' "$pid_file"); do
+    noid=$(echo $pid | sed 's/und://')
+    this_bendo=$(jq --raw-output '.[]["bendo-item"]' "${JOBPATH}/${noid}.rof")
+    target="${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${noid}.rof"
 
-  if ! bclient -root "${JOBPATH}/FROM_TAPE" -token $bclient_api_key -server $bendo_url  get $this_bendo "fedora3/${this_pid}.rof"  ; then
-    rm -rf "${JOBPATH}/FROM_TAPE"
-    exit 1
-  fi
+    # if target file already exists, assume it has already been downloaded
+    if [ -e "$target" ]; then
+        continue
+    fi
 
-  # for comparison's sake, add bendo_url to bendo rof files
-  sed -i "s|bendo:|${bendo_url}|g" "${JOBPATH}/FROM_TAPE/${this_bendo}/fedora3/${this_pid}.rof"
+    if ! bclient -root "${JOBPATH}/FROM_TAPE" -token "$bclient_api_key" -server "$bendo_url" get $this_bendo "fedora3/${noid}.rof" ; then
+        exit 1
+    fi
+
+    # for comparison's sake, add bendo_url to bendo rof files
+    sed -i "s|bendo:|${bendo_url}|g" "${target}"
 done
