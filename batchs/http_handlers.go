@@ -21,10 +21,9 @@ func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *ht
 	fmt.Fprintf(writer, "CurateND Batch (%s)\n", server.Version)
 }
 
-// ItemHandler handles requests to GET /jobs
-
+// GetJobsHandler handles requests to GET /jobs
 func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	var jobs []map[string]string
+	var jobs []JobInfo
 
 	// subdirs contains a list of all the batchs directories
 
@@ -41,11 +40,14 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 		}
 
 		for _, thisJob := range inThisDir {
-			var thisJobMap map[string]string
-			thisJobMap = make(map[string]string)
-			thisJobMap["Name"] = thisJob.Name()
-			thisJobMap["Status"] = dir
-			jobs = append(jobs, thisJobMap)
+			s := JobInfo{
+				Name:   thisJob.Name(),
+				Status: dir,
+			}
+			if dir == "data" {
+				s.Status = "ready"
+			}
+			jobs = append(jobs, s)
 		}
 	}
 
@@ -61,7 +63,7 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 
 func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	var response struct{ Name, Status string }
+	var response JobInfo
 
 	id := ps.ByName("id")
 
@@ -87,6 +89,10 @@ func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 	}
 	enc := json.NewEncoder(w)
 	enc.Encode(response)
+}
+
+type JobInfo struct {
+	Name, Status string
 }
 
 // PutJobIdHandler handles requests to PUT /jobs/:id
