@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 1b548abe9a6291f361d421bd07b1be5a95cf38e1
+  revision: 7eb2b09c1821bdf2ab156ecc5e93f64a7c3eeac1
   specs:
-    rof (1.0.2)
+    rof (1.0.3)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       json-ld (~> 2.0.0)
@@ -52,7 +52,7 @@ GEM
     hooks (0.3.6)
       uber (~> 0.0.4)
     htmlentities (4.3.4)
-    http-cookie (1.0.2)
+    http-cookie (1.0.3)
       domain_name (~> 0.5)
     i18n (0.7.0)
     json (1.8.3)
@@ -76,10 +76,8 @@ GEM
     noids_client (0.0.1)
       json (~> 1.8)
       rest-client (~> 1.6)
-    nokogiri (1.6.8)
+    nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-      pkg-config (~> 1.1.7)
-    pkg-config (1.1.7)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
