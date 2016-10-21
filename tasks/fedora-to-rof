@@ -17,10 +17,19 @@ fi
 
 # Iterate through pids- use rof fedor_to_rof to retrieve from fedora and generate rof
 for pid in $(jq --raw-output 'keys|.[]' $pid_file); do
-
   noid=$(echo $pid | sed 's/und://')
+
+  printf "${pid}..."
+
+  # assume we have already done the download if the file exists
+  if [ -e "$JOBPATH/${noid}.rof" ]; then
+    printf "already downloaded\n"
+    continue
+  fi
 
   if ! bundle exec fedora_to_rof --fedora ${fedora_url} --user "${fedora_user}:${fedora_pass}" --outfile "$JOBPATH/${noid}.rof" $pid; then
     exit 1
   fi
+
+  printf "ok\n"
 done
