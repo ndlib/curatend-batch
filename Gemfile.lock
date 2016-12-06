@@ -1,12 +1,13 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 4cbbd0047c2059b0966dcfb14d4f238b91e821ba
+  revision: 6a1aee7d351e9b3705fc1f77e067a5eef610b4a4
   specs:
-    rof (1.0.4)
+    rof (1.0.6)
       activesupport (< 5.0)
       deprecation (~> 0.1)
+      ebnf (< 1.0.2)
       json-ld (~> 2.0.0)
-      mime-types (~> 2.4.3)
+      mime-types (~> 2.4)
       noids_client
       rdf (~> 2.0.1)
       rdf-isomorphic
@@ -36,7 +37,7 @@ GEM
     concurrent-ruby (1.0.2)
     deprecation (0.2.2)
       activesupport
-    domain_name (0.5.20160826)
+    domain_name (0.5.20161129)
       unf (>= 0.0.5, < 1.0.0)
     ebnf (1.0.1)
       rdf (~> 2.0)
@@ -60,9 +61,9 @@ GEM
       multi_json (~> 1.11)
       rdf (~> 2.0)
     link_header (0.0.8)
-    mime-types (2.4.3)
+    mime-types (2.99.3)
     mini_portile2 (2.1.0)
-    minitest (5.9.1)
+    minitest (5.10.1)
     mono_logger (1.1.0)
     multi_json (1.12.1)
     net-scp (1.2.1)
