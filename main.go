@@ -117,15 +117,13 @@ func main() {
 	fs := batchs.NewFileQueue(*queuepath)
 	ctx := batchs.NewContext(fs, *taskpath, version)
 
-	hs := batchs.RESTServer{
+	//Start the HTTPD Server thread
+	serverHTTP := batchs.RESTServer{
 		QueuePath:  fs,
 		PortNumber: *portNumber,
 		Version:    version,
 	}
-
-	//Start the HTTPD Server thread
-
-	go hs.Run()
+	go serverHTTP.Run()
 
 	// Start the batchs server thread
 
