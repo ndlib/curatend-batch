@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -21,19 +22,20 @@ type RESTServer struct {
 }
 
 // Run initializes and starts all the goroutines used by the server. It then
-// blocks listening for and handling http requests.
-func (s *RESTServer) Run() error {
+// blocks listening for and handling http requests. This function never returns.
+func (s *RESTServer) Run() {
 	if s.PortNumber == "" {
 		s.PortNumber = "15000"
 	}
 
-	err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
+	for {
+		err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
 
-	if err != nil {
-		log.Println(err)
+		if err != nil {
+			log.Println(err)
+			time.Sleep(5 * time.Second) // duration is arbitrary
+		}
 	}
-
-	return err
 }
 
 func (server *RESTServer) addRoutes() http.Handler {
