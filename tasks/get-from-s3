@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+# Read Files from Given S3 Bucket/Folder Combo
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+bucket_file="${JOBPATH}/bucket_file"
+
+#if no pids provided, error and exit
+if [ ! -e "$bucket_file" ]; then
+    echo "ERROR: No bucket_file in job directory"
+    exit 1
+fi
+
+#get bucket/folder
+bucket=$(cat $bucket_file)
+
+#get list of files from bucket
+/opt/batchs/bin/rclone ls aws:${bucket} --config /home/app/.rclone.conf --quiet | awk 'NF == 2 {print $2}' > ${JOBPATH}/s3-files
+
+if [ $? -ne 0 ]; then
+   echo "ERROR:  rclone ls aws:$bucket failed"
+   exit 1
+fi
+
+# we could check # of files, or size
+
+#retrieve file list form S3
+/opt/batchs/bin/rclone copy aws:$bucket . --config /home/app/.rclone.conf --files-from ${JOBPATH}/s3-files --no-update-modtime
+
+if [ $? -ne 0 ]; then
+   echo "ERROR:  rclone copy aws:$bucket failed"
+   exit 1
+fi
+
+exit 0

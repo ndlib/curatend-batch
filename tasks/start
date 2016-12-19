@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Default workflow task
+# S33 workflow task
 # It adds the actual work to do to the job's task list
+
+#if s3 bucket proivided...
+if [ -e ${JOBPATH}/bucket_file ]; then
+  echo 'addtask:get-from-s3' >> "$JOBCONTROL"
+fi
 
 # If there are no rof files in the job directory...
 if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; then
