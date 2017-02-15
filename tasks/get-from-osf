@@ -9,7 +9,7 @@ osf_projects="${JOBPATH}/osf_projects"
 
 #if no pids provided, error and exit
 if [ ! -e "$osf_projects" ]; then
-  echo "No OSF registration file in job directory"
+  echo "No osf_projects file in job directory"
   exit 1
 fi
 
@@ -22,14 +22,33 @@ fi
 for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
 
   package_name=${this_project}
-  package_url="https://api.osf.io/v2/registrations/${package_name}/"
+  registration_url="https://api.osf.io/v2/registrations/${package_name}/"
+  project_url="https://api.osf.io/v2/nodes/${package_name}/"
 
+  # Registrations and projects have different API endpoints, and we don't know what we've got here.
+  # Do a HEAD request on the registration API endpoint. If it succeeds, use it.
+  # The OSF API requires at least TLS security (sslv2 or 3 will fail)
+  # If it fails, use the project API endpoint.
+  http_code=$(curl --tlsv1.2  -X HEAD  -w "%{http_code}" -s  $registration_url)
 
-  java -jar /opt/batchs/scripts/osf-cli.jar -c /opt/batchs/tasks/osf-cli.conf -n $package_name -o ${JOBPATH}/FROM_OSF $package_url
+  if [ $http_code -eq 200 ]; then
+  	java -jar /opt/batchs/scripts/osf-cli.jar -c /opt/batchs/tasks/osf-cli.conf -n $package_name -o ${JOBPATH}/FROM_OSF $registration_url
+  else
+  	java -jar /opt/batchs/scripts/osf-cli.jar -c /opt/batchs/tasks/osf-cli.conf -n $package_name -o ${JOBPATH}/FROM_OSF $project_url
+  fi
 
   #if download fails, error and exit
   if [ $? -ne 0 ]; then
     echo "OSF-CLI returns $?"
     exit 1
+  fi
+
+  # Based on which endpoint we used (project or registration) set the package_type for future use
+  osf_projects_json=$(cat osf_projects)
+
+  if [ $http_code -eq 200 ]; then
+	  echo $osf_projects_json | jq '.+ { package_type: "OSF Registration"}' > $osf_projects
+  else
+	  echo $osf_projects_json | jq '.+ { package_type: "OSF Project"}' > $osf_projects
   fi
 done
