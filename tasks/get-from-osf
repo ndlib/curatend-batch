@@ -9,7 +9,7 @@ osf_projects="${JOBPATH}/osf_projects"
 
 #if no pids provided, error and exit
 if [ ! -e "$osf_projects" ]; then
-  echo "No OSF registration or project file in job directory"
+  echo "No osf_projects file in job directory"
   exit 1
 fi
 
@@ -27,7 +27,8 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
 
   # Registrations and projects have different API endpoints, and we don't know what we've got here.
   # Do a HEAD request on the registration API endpoint. If it succeeds, use it.
-  # If it fails, try the project API endpoint.
+  # The OSF API requires at least TLS security (sslv2 or 3 will fail)
+  # If it fails, use the project API endpoint.
   http_code=$(curl --tlsv1.2  -X HEAD  -w "%{http_code}" -s  $registration_url)
 
   if [ $http_code -eq 200 ]; then
