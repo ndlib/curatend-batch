@@ -4,6 +4,8 @@
 License](http://img.shields.io/badge/APACHE2-license-blue.svg)](./LICENSE)
 [![Contributing
 Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
+[![Go Report
+Card](https://goreportcard.com/badge/github.com/ndlib/curatend-batch)](https://goreportcard.com/report/github.com/ndlib/curatend-batch)
 
 This repository provides code to run the batch ingest infrastructure for
 [CurateND].  Most of the code to perform the actual processing is in the
