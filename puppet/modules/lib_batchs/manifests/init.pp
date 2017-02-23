@@ -18,6 +18,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	$batch_noid_pool = hiera('batch_noid_pool')
 	$batch_redis_host_port = hiera('batch_redis_host_port')
 	$bclient_api_key = hiera('bclient_api_key')
+	$solr_url = hiera('solr_url')
 
 	package { $pkglist:
 		ensure => present,
