@@ -44,7 +44,7 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
   fi
 
   # Based on which endpoint we used (project or registration) set the package_type for future use
-  osf_projects_json=$(cat osf_projects)
+  osf_projects_json=$(cat $osf_projects)
 
   if [ $http_code -eq 200 ]; then
 	  echo $osf_projects_json | jq '.+ { package_type: "OSF Registration"}' > $osf_projects
