@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # the environments that are not used to execute the deploy scripts
 group :default do
   gem 'rake'
-  gem 'rof', git: 'https://github.com/ndlib/rof'
+  gem 'rof', github: 'ndlib/rof', branch: 'DLTP-946'
   gem 'resque', '~> 1.23'
 
   # constrain the following since we want to keep using ruby 2.0
