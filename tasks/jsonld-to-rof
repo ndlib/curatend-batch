@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+# Translate JSONJD files into ROF files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+cd "$gemfile_dir"
+for json_ld_file in "$JOBPATH"/*.jsonld; do
+  if [ ! -e "$json_ld_file" ]; then
+    echo "No JSONLD files in job directory"
+    exit 1
+  fi
+
+  rof_file=${json_ld_file%.jsonld}.rof
+  echo "$json_ld_file"
+  if ! bundle exec jsonld_to_rof < "$json_ld_file" > "$rof_file"; then
+    exit 1
+  fi
+done
