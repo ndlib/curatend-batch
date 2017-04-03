@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Convert access with pid within RightsMetadata to RELS-EXT in ROF files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+cd $gemfile_dir
+for rof_file in "$JOBPATH"/metadata-*.rof; do
+  if [ ! -e "$rof_file" ]; then
+    echo "No ROF files in job directory"
+    exit 1
+  fi
+
+  echo "$rof_file"
+  if bundle exec rof filter access-to-relsext \
+    "$rof_file" > "$rof_file".new; then
+    # it worked. replace original file with temp file
+    mv "$rof_file".new "$rof_file"
+  else
+    # error. don't remove the temporary rof file in case it is important.
+    # it will be overwritten next time, anyway
+    exit 1
+  fi
+done

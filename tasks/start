@@ -16,6 +16,7 @@ fi
 echo 'addtask:work-xlat' >> "$JOBCONTROL"
 echo 'addtask:assign-pids' >> "$JOBCONTROL"
 echo 'addtask:file-to-url' >> "$JOBCONTROL"
+echo 'addtask:access-to-relsext' >> "$JOBCONTROL"
 echo 'addtask:date-stamp' >> "$JOBCONTROL"
 echo 'addtask:validate' >> "$JOBCONTROL"
 echo 'addtask:move-files-for-bendo' >> "$JOBCONTROL"
