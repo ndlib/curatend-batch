@@ -1,8 +1,9 @@
 GIT
-  remote: https://github.com/ndlib/rof
-  revision: 58ce03b7200c205e9840a70492c3d6c4e2d0b0ad
+  remote: git://github.com/ndlib/rof.git
+  revision: 67e4b0878d4ba5c160c7db3dc563ae300b929722
+  branch: DLTP-946
   specs:
-    rof (1.1.0)
+    rof (1.2.0)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -141,7 +142,7 @@ GEM
       rdf (~> 2.0)
     thread_safe (0.3.6)
     tilt (2.0.6)
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
     unf (0.1.4)
