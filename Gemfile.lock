@@ -4,7 +4,7 @@ GIT
   revision: a644dec06d320c69e87f91bff09676d201d3aa1e
 =======
   remote: git://github.com/ndlib/rof.git
-  revision: 67e4b0878d4ba5c160c7db3dc563ae300b929722
+  revision: d57407ee8d53c2a7d8e347eb55f0917e2bf8a0a8
   branch: DLTP-946
 >>>>>>> update Gemfile.lock for DLTP-946
   specs:
@@ -172,4 +172,4 @@ DEPENDENCIES
   rof!
 
 BUNDLED WITH
-   1.12.4
+   1.14.2
