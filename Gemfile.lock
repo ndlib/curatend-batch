@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 58ce03b7200c205e9840a70492c3d6c4e2d0b0ad
+  revision: a644dec06d320c69e87f91bff09676d201d3aa1e
   specs:
-    rof (1.1.0)
+    rof (1.2.0)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -36,7 +36,7 @@ GEM
       net-sftp (>= 2.0.0)
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
-    concurrent-ruby (1.0.4)
+    concurrent-ruby (1.0.5)
     deprecation (0.2.2)
       activesupport
     domain_name (0.5.20170223)
@@ -140,8 +140,8 @@ GEM
     sxp (1.0.0)
       rdf (~> 2.0)
     thread_safe (0.3.6)
-    tilt (2.0.6)
-    tzinfo (1.2.2)
+    tilt (2.0.7)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
     unf (0.1.4)
