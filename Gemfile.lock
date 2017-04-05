@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/ndlib/rof.git
-  revision: 67e4b0878d4ba5c160c7db3dc563ae300b929722
+  revision: d57407ee8d53c2a7d8e347eb55f0917e2bf8a0a8
   branch: DLTP-946
   specs:
     rof (1.2.0)
@@ -163,4 +163,4 @@ DEPENDENCIES
   rof!
 
 BUNDLED WITH
-   1.12.4
+   1.14.2
