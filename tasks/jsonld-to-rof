@@ -12,9 +12,10 @@ for json_ld_file in "$JOBPATH"/*.jsonld; do
     exit 1
   fi
 
-  rof_file=${json_ld_file%.jsonld}.rof
+  base_file_name=$(basename $json_ld_file)
+  rof_file_name="$JOBPATH/metadata-${base_file_name%.jsonld}.rof"
   echo "$json_ld_file"
-  if ! bundle exec jsonld_to_rof < "$json_ld_file" > "$rof_file"; then
+  if ! bundle exec jsonld_to_rof < "$json_ld_file" > $rof_file_name; then
     exit 1
   fi
 done
