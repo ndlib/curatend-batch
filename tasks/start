@@ -5,7 +5,7 @@
 
 # If there are no rof files in the job directory...
 if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; then
-  if [ -z $(find "$JOBPATH" -maxdepth 1 -name '*.jsonld' -print -quit) ]; then
+  if [ -n $(find "$JOBPATH" -maxdepth 1 -name '*.jsonld' -print -quit) ]; then
     # no rof, but jsonld present- convert these to rof
     echo 'addtask:jsonld-to-rof' >> $JOBCONTROL
   else
