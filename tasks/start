@@ -5,8 +5,13 @@
 
 # If there are no rof files in the job directory...
 if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; then
-  # no rof files, so process any csv files
-  echo 'addtask:csv-to-rof' >> "$JOBCONTROL"
+  if [ -z $(find "$JOBPATH" -maxdepth 1 -name '*.jsonld' -print -quit) ]; then
+    # no rof, but jsonld present- convert these to rof
+    echo 'addtask:jsonld-to-rof' >> $JOBCONTROL
+  else
+    # no jsonld or rof files, so process any csv files
+    echo 'addtask:csv-to-rof' >> "$JOBCONTROL"
+  fi
 fi
 echo 'addtask:work-xlat' >> "$JOBCONTROL"
 echo 'addtask:assign-pids' >> "$JOBCONTROL"
