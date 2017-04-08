@@ -1,12 +1,6 @@
 GIT
-<<<<<<< HEAD
   remote: https://github.com/ndlib/rof
-  revision: a644dec06d320c69e87f91bff09676d201d3aa1e
-=======
-  remote: git://github.com/ndlib/rof.git
-  revision: 99c4330cabfbcd01cc1edeb18919424be424fd10
-  branch: DLTP-946
->>>>>>> update Gemfile.lock for DLTP-946
+  revision: 6a3c657fd89d2099894efb14158a723fcc457b9d
   specs:
     rof (1.2.0)
       activesupport (< 5.0)
@@ -45,7 +39,7 @@ GEM
     concurrent-ruby (1.0.5)
     deprecation (0.2.2)
       activesupport
-    domain_name (0.5.20170223)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     ebnf (1.0.1)
       rdf (~> 2.0)
@@ -146,11 +140,7 @@ GEM
     sxp (1.0.0)
       rdf (~> 2.0)
     thread_safe (0.3.6)
-<<<<<<< HEAD
     tilt (2.0.7)
-=======
-    tilt (2.0.6)
->>>>>>> update Gemfile.lock for DLTP-946
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
