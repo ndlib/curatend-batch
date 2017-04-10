@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: a644dec06d320c69e87f91bff09676d201d3aa1e
+  revision: 6a3c657fd89d2099894efb14158a723fcc457b9d
   specs:
     rof (1.2.0)
       activesupport (< 5.0)
@@ -39,7 +39,7 @@ GEM
     concurrent-ruby (1.0.5)
     deprecation (0.2.2)
       activesupport
-    domain_name (0.5.20170223)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     ebnf (1.0.1)
       rdf (~> 2.0)
@@ -162,4 +162,4 @@ DEPENDENCIES
   rof!
 
 BUNDLED WITH
-   1.12.4
+   1.14.2
