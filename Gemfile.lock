@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 6a3c657fd89d2099894efb14158a723fcc457b9d
+  revision: 5c3904f488299b1eeaf016f55d998411d5b3dbd3
   specs:
-    rof (1.2.0)
+    rof (1.2.1)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -146,7 +146,7 @@ GEM
     uber (0.0.15)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.2)
+    unf_ext (0.0.7.4)
     vegas (0.1.11)
       rack (>= 1.0.0)
 
