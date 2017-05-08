@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 5c3904f488299b1eeaf016f55d998411d5b3dbd3
+  revision: 0461efabe7b64ccfdf2390a8ee6209b9fd97a6fc
   specs:
-    rof (1.2.1)
+    rof (1.2.4)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -15,7 +15,7 @@ GIT
       rdf-rdfxml
       rdf-turtle (~> 2.0.0)
       rdf-xsd (~> 2.0.0)
-      rsolr
+      rsolr (~> 1.1.2)
       rubydora (~> 1.8.1)
 
 GEM
