@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 5cc5af784652fbb3fa0e0bfb1e24ca62c101ef5c
+  revision: 822f580239bd1826bc3bed9a43afde0e95498257
   specs:
-    rof (1.2.5)
+    rof (1.2.6)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -65,7 +65,7 @@ GEM
     link_header (0.0.8)
     mime-types (2.99.3)
     mini_portile2 (2.1.0)
-    minitest (5.10.1)
+    minitest (5.10.2)
     mono_logger (1.1.0)
     multi_json (1.12.1)
     net-scp (1.2.1)
@@ -162,4 +162,4 @@ DEPENDENCIES
   rof!
 
 BUNDLED WITH
-   1.14.2
+   1.14.6
