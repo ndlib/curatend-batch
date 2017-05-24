@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: db084cd8b7ef7af1c3486a1acefd6e5200e37b62
+  revision: 530f1490474a2924ed06bb3407fc501c6639a59f
   specs:
-    rof (1.2.7)
+    rof (1.2.8)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
