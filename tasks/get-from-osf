@@ -13,9 +13,9 @@ if [ ! -e "$osf_projects" ]; then
   exit 1
 fi
 
-#Create FROM_OSF dir if needed
-if [ ! -e "${JOBPATH}/FROM_OSF" ]; then
-  mkdir -p "${JOBPATH}/FROM_OSF" 
+#remove FROM_OSF dir if needed (tool recreates)
+if [ -e "${JOBPATH}/FROM_OSF" ]; then
+  rm -rf "${JOBPATH}/FROM_OSF" 
 fi
 
 # Iterate through urls
@@ -29,7 +29,7 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
   # Do a HEAD request on the registration API endpoint. If it succeeds, use it.
   # The OSF API requires at least TLS security (sslv2 or 3 will fail)
   # If it fails, use the project API endpoint.
-  http_code=$(curl --tlsv1.2  -X HEAD  -w "%{http_code}" -s  $registration_url)
+  http_code=$(curl --tlsv1.2 -f --ignore-content-length  -X HEAD  -w "%{http_code}" -s  $registration_url)
 
   if [ $http_code -eq 200 ]; then
   	java -jar /opt/batchs/scripts/osf-cli.jar -c /opt/batchs/tasks/osf-cli.conf -n $package_name -o ${JOBPATH}/FROM_OSF $registration_url
@@ -41,6 +41,12 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
   if [ $? -ne 0 ]; then
     echo "OSF-CLI returns $?"
     exit 1
+  fi
+  
+  # For the time being, the downstream batch ingest components expect this
+  if [ -e "${JOBPATH}/FROM_OSF/${this_project}.tar" -a ! -e "${JOBPATH}/FROM_OSF/${this_project}.tar.gz" ]; then
+     gzip -c  "${JOBPATH}/FROM_OSF/${this_project}.tar" > /tmp/${this_project}.tar.gz
+     mv /tmp/${this_project}.tar.gz ${JOBPATH}/FROM_OSF
   fi
 
   # Based on which endpoint we used (project or registration) set the package_type for future use
