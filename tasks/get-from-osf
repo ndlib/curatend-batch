@@ -44,8 +44,9 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
   fi
   
   # For the time being, the downstream batch ingest components expect this
-  if [ -e "${JOBPATH}/FROM_OSF/${this_project}.tar" && ! -e "${JOBPATH}/FROM_OSF/${this_project}.tar.gz" ]; then
-    gunzip "${JOBPATH}/FROM_OSF/${this_project}.tar"
+  if [ -e "${JOBPATH}/FROM_OSF/${this_project}.tar" -a ! -e "${JOBPATH}/FROM_OSF/${this_project}.tar.gz" ]; then
+     gzip -c  "${JOBPATH}/FROM_OSF/${this_project}.tar" > /tmp/${this_project}.tar.gz
+     mv /tmp/${this_project}.tar.gz ${JOBPATH}/FROM_OSF
   fi
 
   # Based on which endpoint we used (project or registration) set the package_type for future use
