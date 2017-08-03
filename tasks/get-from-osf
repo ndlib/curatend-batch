@@ -42,6 +42,11 @@ for this_project  in $(jq --raw-output .project_identifier < $osf_projects ); do
     echo "OSF-CLI returns $?"
     exit 1
   fi
+  
+  # For the time being, the downstream batch ingest components expect this
+  if [ -e "${JOBPATH}/FROM_OSF/${this_project}.tar" && ! -e "${JOBPATH}/FROM_OSF/${this_project}.tar.gz" ]; then
+    gunzip "${JOBPATH}/FROM_OSF/${this_project}.tar"
+  fi
 
   # Based on which endpoint we used (project or registration) set the package_type for future use
   osf_projects_json=$(cat $osf_projects)
