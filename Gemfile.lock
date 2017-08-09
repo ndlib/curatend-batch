@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: b1e31b642dd6b4d8db46329fc8ead80a09212ba3
+  revision: 53b7ba68c43f92887abdfb12eef0af4483ed5136
   specs:
     rof (1.2.9)
       activesupport (< 5.0)
@@ -21,10 +21,10 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.8)
-      activesupport (= 4.2.8)
+    activemodel (4.2.9)
+      activesupport (= 4.2.9)
       builder (~> 3.1)
-    activesupport (4.2.8)
+    activesupport (4.2.9)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -37,7 +37,7 @@ GEM
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
     concurrent-ruby (1.0.5)
-    deprecation (0.2.2)
+    deprecation (0.99.0)
       activesupport
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
@@ -57,7 +57,7 @@ GEM
     htmlentities (4.3.4)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.8.4)
+    i18n (0.8.6)
     json (1.8.6)
     json-ld (2.0.0.1)
       multi_json (~> 1.11)
@@ -65,7 +65,7 @@ GEM
     link_header (0.0.8)
     mime-types (2.99.3)
     mini_portile2 (2.1.0)
-    minitest (5.10.2)
+    minitest (5.10.3)
     mono_logger (1.1.0)
     multi_json (1.12.1)
     net-scp (1.2.1)
@@ -98,7 +98,7 @@ GEM
       rdf (~> 2.0)
       rdf-aggregate-repo (~> 2.0)
       rdf-xsd (~> 2.0)
-    rdf-rdfxml (2.0.0)
+    rdf-rdfxml (2.2.0)
       htmlentities (~> 4.3)
       rdf (~> 2.0)
       rdf-rdfa (~> 2.0)
@@ -140,7 +140,7 @@ GEM
     sxp (1.0.0)
       rdf (~> 2.0)
     thread_safe (0.3.6)
-    tilt (2.0.7)
+    tilt (2.0.8)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
