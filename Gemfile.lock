@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 53b7ba68c43f92887abdfb12eef0af4483ed5136
+  revision: dda87c2b1ebb478232df133ffebe4457633adbd2
   specs:
-    rof (1.2.9)
+    rof (1.2.10)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -11,8 +11,9 @@ GIT
       noids_client
       nokogiri (~> 1.6.8.1)
       rdf (~> 2.0.1)
+      rdf-aggregate-repo (~> 2.0.0)
       rdf-isomorphic
-      rdf-rdfxml
+      rdf-rdfxml (~> 2.0.0)
       rdf-turtle (~> 2.0.0)
       rdf-xsd (~> 2.0.0)
       rsolr (~> 1.1.2)
@@ -37,7 +38,7 @@ GEM
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
     concurrent-ruby (1.0.5)
-    deprecation (0.99.0)
+    deprecation (0.2.2)
       activesupport
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
@@ -68,6 +69,8 @@ GEM
     minitest (5.10.3)
     mono_logger (1.1.0)
     multi_json (1.12.1)
+    mustermann (0.3.1)
+      tool (~> 0.2)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-sftp (2.1.2)
@@ -141,6 +144,7 @@ GEM
       rdf (~> 2.0)
     thread_safe (0.3.6)
     tilt (2.0.8)
+    tool (0.2.3)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     uber (0.0.15)
@@ -155,6 +159,8 @@ PLATFORMS
 
 DEPENDENCIES
   capistrano (~> 2)
+  deprecation (~> 0.2.2)
+  mustermann (~> 0.3.1)
   rake
   rdf-aggregate-repo (~> 2.0.0)
   rdf-rdfa (~> 2.0.1)
