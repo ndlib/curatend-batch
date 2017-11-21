@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: dda87c2b1ebb478232df133ffebe4457633adbd2
+  revision: ef49be22d5b749ada92eded00812da34cd47d5ea
   specs:
-    rof (1.2.10)
+    rof (1.2.11)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -22,10 +22,10 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.9)
-      activesupport (= 4.2.9)
+    activemodel (4.2.10)
+      activesupport (= 4.2.10)
       builder (~> 3.1)
-    activesupport (4.2.9)
+    activesupport (4.2.10)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -58,7 +58,8 @@ GEM
     htmlentities (4.3.4)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.8.6)
+    i18n (0.9.1)
+      concurrent-ruby (~> 1.0)
     json (1.8.6)
     json-ld (2.0.0.1)
       multi_json (~> 1.11)
@@ -68,7 +69,7 @@ GEM
     mini_portile2 (2.1.0)
     minitest (5.10.3)
     mono_logger (1.1.0)
-    multi_json (1.12.1)
+    multi_json (1.12.2)
     mustermann (0.3.1)
       tool (~> 0.2)
     net-scp (1.2.1)
@@ -145,7 +146,7 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.8)
     tool (0.2.3)
-    tzinfo (1.2.3)
+    tzinfo (1.2.4)
       thread_safe (~> 0.1)
     uber (0.0.15)
     unf (0.1.4)
