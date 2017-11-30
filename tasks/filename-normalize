@@ -18,10 +18,11 @@ for rof_file in "$JOBPATH"/metadata-*.rof; do
     err_file_length=$(cat "$rof_file.err" | wc -c)
     # no errors- it worked. replace original file with temp file
     if [ $err_file_length == 0 ] ; then
-    	mv "$rof_file.filenorm" "$rof_file"
+      mv "$rof_file.filenorm" "$rof_file"
+      rm "$rof_file.err"
     else
-	# rof filter had errors"
-	exit 1
+      # rof filter had errors"
+      exit 1
     fi
   else
     # error. don't remove the temporary rof file in case it is important.
