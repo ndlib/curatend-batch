@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: a5a6f680b9aac30c6bcaa69184de65a43177d6da
+  revision: 885b35fd70c34854e87f9b61ebbaf317ed2a5799
   specs:
-    rof (1.2.12)
+    rof (1.2.13)
       activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
@@ -164,6 +164,7 @@ DEPENDENCIES
   mustermann (~> 0.3.1)
   rake
   rdf-aggregate-repo (~> 2.0.0)
+  rdf-isomorphic (~> 2.0.0)
   rdf-rdfa (~> 2.0.1)
   resque (~> 1.23)
   rof!
