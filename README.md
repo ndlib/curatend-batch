@@ -38,6 +38,16 @@ To run locally:
 * `go build` - This will make an executable file
 * `./curatend-batch` - Run the executable; it will by default run on port 15000
 
+## Running tests
+
+For batch:
+
+```console
+$ cd batches
+$ go test
+```
+
 # Documentation
 
-Detailed documentation is available in a [Google Document](https://docs.google.com/document/d/1LtI4QlowI-rcJdFy3535T8417NKPU4FW-zpGi-b-XYk/edit) (ND only).
+* Detailed documentation is available in a [Google Document](https://docs.google.com/document/d/1LtI4QlowI-rcJdFy3535T8417NKPU4FW-zpGi-b-XYk/edit) (ND only).
+* [API Documentation](./api.md)
