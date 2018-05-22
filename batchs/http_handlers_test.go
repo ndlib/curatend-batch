@@ -67,12 +67,14 @@ func TestGetJobs(t *testing.T) {
 
 	getTests := []testInfo{
 		{"/", "CurateND Batch (testing)\n", 200},
-		{"/jobs", "[{\"Name\":\"queuedjob\",\"Status\":\"queue\"},{\"Name\":\"testjob1\",\"Status\":\"success\"}]\n", 200},
+		{"/jobs", "[{\"Name\":\"queuedjob\",\"Status\":\"queue\"},{\"Name\":\"testjob1\",\"Status\":\"success\"},{\"Name\":\"testmultifilejob2\",\"Status\":\"success\"}]\n", 200},
 		{"/jobs/testjob1", "{\"Name\":\"testjob1\",\"Status\":\"success\"}\n", 200},
 		{"/jobs/testjob1/files/testfile1", string(fileContent), 200},
 		{"/jobs/testjob1/files/testfile2", "", 404},
 		{"/jobs/testjob1/files/", "[\"testfile1\"]\n", 200},
 		{"/jobs/testjob1/files/something/../..", "[\"testfile1\"]\n", 200},
+		{"/jobs/testmultifilejob2/files/", "[\"subdir\",\"testfile2\"]\n", 200},
+		{"/jobs/testmultifilejob2/files/subdir", "[\"testfile2\"]\n", 200},
 		{"/jobs/non-existent/", "Not Found\n", 404},
 		{"/jobs/non-existent/files/", "", 404},
 		{"/jobs/queuedjob", "{\"Name\":\"queuedjob\",\"Status\":\"queue\"}\n", 200},
@@ -82,6 +84,8 @@ func TestGetJobs(t *testing.T) {
 
 	// test setup
 	createJobFile(t, testFS, "success", "testjob1", "testfile1", fileContent)
+	createJobFile(t, testFS, "success", "testmultifilejob2", "testfile2", fileContent)
+	createJobFile(t, testFS, "success", "testmultifilejob2", "subdir/testfile2", fileContent)
 	createJobFile(t, testFS, "queue", "queuedjob", "testfile1", fileContent)
 
 	for _, thisTest := range getTests {
@@ -170,15 +174,16 @@ func TestSubmitHandler(t *testing.T) {
 // some test utility functions
 
 func createJobFile(t *testing.T, testFS, dir, id, fileName string, fileContent []byte) {
+	filePath := path.Join(testFS, dir, id, fileName)
 
-	err := os.MkdirAll(path.Join(testFS, dir, id), 0744)
+	err := os.MkdirAll(path.Dir(filePath), 0744)
 	if err != nil {
 		t.Fatalf("Could not create directory")
 	}
 
-	err = ioutil.WriteFile(path.Join(testFS, dir, id, fileName), fileContent, 0755)
+	err = ioutil.WriteFile(filePath, fileContent, 0755)
 	if err != nil {
-		t.Fatalf("Could not create file")
+		t.Fatal("Could not create file", fileName)
 	}
 }
 
