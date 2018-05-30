@@ -1,0 +1,192 @@
+swagger: "2.0"
+info:
+  title: "Batch Ingest API for CurateND"
+  description: "This API is intended to provide a convenient, non-file system based, way for other services to create and check on batch jobs"
+  version: "1.1.6"
+externalDocs:
+  description: "Source code documentation here"
+  url: "https://github.com/ndlib/curatend-batch/blob/master/api.md"
+schemes:
+- "https"
+paths:
+  /:
+    get:
+      summary: "Returns the current running version"
+      produces:
+        - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Version'
+          examples:
+            text/plain:
+              "CurateND Batch (1.1.6)"
+  /jobs:
+    get:
+      summary: Returns a JSON array listing the names of all the jobs
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/AllJobs'
+          examples:
+            application/json:
+              [
+                { "Name": "job-1", "Status": "success" },
+                { "Name": "another-job", "Status": "success" },
+                { "Name": "test2", "Status": "success" }
+              ]
+        "401":
+          description: Unauthorized
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  "/jobs/{jobId}":
+    parameters:
+      - in: path
+        name: jobId
+        type: string
+        required: true
+        description: ID of a specific job
+    get:
+      summary: "This request returns the job's information as a JSON object"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: >
+            The possible values for 'Status' are:
+            * "success" - the job completed processing successfully,
+            * "error", - the job had an error during processing,
+            * "processing", - the job is being processed,
+            * "queue", - the job is waiting to be processed,
+            * "ready" - the job has not been queued yet.
+          schema:
+            $ref: '#/definitions/EachJob'
+          examples:
+            application/json:
+              { "Name": "test2", "Status": "success" }
+    put:
+      tags:
+        - skipTests
+      summary: "A payload does not need to be provided. If one is present, it is ignored. This call is mainly used to create a job if a job with that id does not already exist."
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - skipTests
+      summary: "This will delete the given job and all the data and files inside it."
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+  "/jobs/{jobId}/queue":
+    parameters:
+      - in: path
+        name: jobId
+        type: string
+        required: true
+        description: ID of a specific job
+    post:
+      tags:
+      - skipTests
+      summary: "This request will ask that the given job be moved to the `queue` directory"
+      description: >
+        * It has no effect if the job is already in the `queue` or `processing` directories.
+
+        * If a job is moved from the "error" or "success" states to "queue", it will resume with whatever task caused an error, or the next task in the Todo list.
+
+        * To reprocess a job from the complete beginning `DELETE` the `JOB` file and then submit the job.
+      responses:
+        200:
+          description: OK
+  "/jobs/{jobId}/files":
+    parameters:
+      - in: path
+        name: jobId
+        type: string
+        required: true
+        description: ID of a specific job
+    get:
+      summary: "This request will return an array of filenames and/or subdirectories"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/GetFilesResponse'
+          examples:
+            application/json:
+             ["filename1", "subdirectory1", "filenam2", "subdirectory2"]
+  "/jobs/{jobId}/files/{pathName}":
+    parameters:
+      - in: path
+        name: jobId
+        type: string
+        required: true
+        description: ID of a specific job
+      - in: path
+        name: pathName
+        type: string
+        required: true
+        description: a file, a directory, or path of a file/directory
+        enum: ["fileName1", "path/to/fileName2", "directoryName1", "path/to/directoryName2"]
+    get:
+      summary: "This request will return an array of filenames and/or subdirectories."
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/GetFilesResponse'
+          examples:
+            application/json:
+             ["filename1", "subdirectory1", "filenam2", "subdirectory2"]
+    put:
+      tags:
+        - skipTests
+      summary: "This request will add a file into the given job"
+      description: >
+        * The path given may contain forward slashes, and those will create subdirectories.
+
+        * It is legal to alter files used by the batch ingest service, such as `JOB`, `LOG`, and `WEBHOOK`.
+
+        * The request body is saved as the contents of the file.
+
+        * If the file already exists, it is replaced.
+      responses:
+        200:
+          description: OK
+    delete:
+      tags:
+        - skipTests
+      summary: "This request will delete a file from the given job. It is not an error to remove a file which does not exist."
+      responses:
+        200:
+          description: OK
+definitions:
+  Version:
+    type: string
+  AllJobs:
+    type: array
+    items:
+      $ref: '#/definitions/EachJob'
+  EachJob:
+    type: object
+    properties:
+      Name:
+        type: string
+      Status:
+        type: string
+  GetFilesResponse:
+    type: array
+    items:
+      type: string
+  Error:
+    type: object

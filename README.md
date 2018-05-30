@@ -6,6 +6,7 @@ License](http://img.shields.io/badge/APACHE2-license-blue.svg)](./LICENSE)
 Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![Go Report
 Card](https://goreportcard.com/badge/github.com/ndlib/curatend-batch)](https://goreportcard.com/report/github.com/ndlib/curatend-batch)
+<img src="http://online.swagger.io/validator?url=https://raw.githubusercontent.com/ndlib/curatend-batch/master/definitions/swagger.yml">
 
 This repository provides code to run the batch ingest infrastructure for
 [CurateND].  Most of the code to perform the actual processing is in the
