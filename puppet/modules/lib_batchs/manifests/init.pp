@@ -122,19 +122,6 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 		content => template('lib_batchs/log_run.erb'),
 	}
 
-# make sure the upstart managed service is down and service file removed
-# (these puppets steps will be unnecessary once batchs has been
-# deployed to all the environments)
-
-	exec { 'stop-batchs-upstart':
-		command => "/sbin/initctl stop batchs",
-		returns => [0, 1],
-		require => File[$batchrunitdirs],
-	} ->
-	file { '/etc/init/batchs':
-		ensure => absent,
-	}
-
 # Start the service and describe it to puppet
 
 	class { 'lib_runit::add':
