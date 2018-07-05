@@ -31,6 +31,6 @@ for pid in $(jq --raw-output 'keys|.[]' $pid_file); do
     exit 1
   fi
   
-  jq '.[] += { "bendo-item": "substitute_me" }' "$JOBPATH/${noid}.rof" | sed "s/substitute_me/${noid}/" > "$JOBPATH/metatadata-${noid}.rof"
+  jq '.[] += { "bendo-item": "substitute_me" }' "$JOBPATH/${noid}.rof" | sed "s/substitute_me/${noid}/" > "$JOBPATH/metadata-${noid}.rof"
   rm -f "$JOBPATH/${noid}.rof"
 done

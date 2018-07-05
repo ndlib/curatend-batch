@@ -41,7 +41,7 @@ for pid in $(jq -r 'to_entries[] | [.key, .value] | @csv' ${pid_file}); do
 
   # make stub bendo URL
   file_label=$(jq --raw-output '.[]["content-meta"]["label"]' "$JOBPATH/wbendoitem-${fedora_id}.rof")
-  bendo_stub="bendo:/item/${bendo_id}/${file_label}"
+  bendo_stub="bendo:/item/${bendo_id}/${fedora_id}-${file_label}"
 
   # add stub URL to generic file content-meta
   jq --arg BENDO_STUB "$bendo_stub" '.[]["content-meta"]["URL"] += $BENDO_STUB'  "$JOBPATH/wbendoitem-${fedora_id}.rof" > "$JOBPATH/metadata-${fedora_id}.rof" 
