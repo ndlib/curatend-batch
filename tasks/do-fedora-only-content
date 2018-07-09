@@ -35,26 +35,24 @@ for pid in $(jq -r 'to_entries[] | [.key, .value] | @csv' ${pid_file}); do
 
   # assume we have already done the download if the file exists
   if [ -e $download_file ]; then
-    printf "already downloaded ${unique_file_label}, skipping...\n"
-    continue
+    printf "already downloaded ${unique_file_label}...\n"
+  else
+    # download content
+    curl -k -s -o $download_file  --user ${fedora_user}:${fedora_pass}   ${fedora_url}/objects/und:${fedora_id}/datastreams/content/content?download=true 
   fi
-
-  # download content
-
-  curl -k -s -o $download_file  --user ${fedora_user}:${fedora_pass}   ${fedora_url}/objects/und:${fedora_id}/datastreams/content/content?download=true 
 
   curl -k -s -o "$JOBPATH/content_ds" --user ${fedora_user}:${fedora_pass}   ${fedora_url}/objects/und:${fedora_id}/datastreams/content?format=xml
 
   # compute content MD5 checksum
 
-  checksum=$(md5sum $JOBPATH/$unique_file_label | cut -d' ' -f 1)
+  checksum=$(md5sum $download_file | cut -d' ' -f 1)
 
   checksum_found=$(grep "$checksum" "$JOBPATH/content_ds" | wc -l) 
 
   # if MD5 checksum not present in datastream, return error
 
   if [ $checksum_found -eq 0 ]; then
- 	rm -f $JOBPATH/$unique_file_label
+ 	rm -f $download_file
 	echo "Error: $unique_file_label download checksum did not match fedora object."
 	exit 1
   fi
