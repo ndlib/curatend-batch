@@ -1,0 +1,52 @@
+#!/bin/bash -e
+
+# Read list of GenericFiles Pids- retrieve from fedora translate into ROF files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+cd "$gemfile_dir"
+
+pid_file="${JOBPATH}/genericfile-pids"
+
+
+#if no pids provided, error and exit
+if [ ! -e "$pid_file" ]; then
+    echo "No genericfiles-pids file in job directory"
+    exit 1
+fi
+
+# Iterate through pids- use rof fedora_to_rof to retrieve from fedora and generate rof
+for pid in $(jq -r 'to_entries[] | [.key, .value] | @csv' ${pid_file}); do
+  fedora_id=`echo $pid | sed 's/"//g' | sed 's/und://' | awk 'BEGIN{FS=","}{ print $1}'`
+  bendo_id=`echo $pid | sed 's/"//g' | sed 's/und://' | awk 'BEGIN{FS=","}{ print $2}'`
+
+  echo "${fedora_id}..."
+
+  # assume we have already done the download if the file exists
+  if [ -e "${JOBPATH}/metadata-${fedora_id}.rof" ]; then
+    printf "already downloaded\n"
+    continue
+  fi
+
+  echo "start fedora_to_rof...."
+
+  #get fedora metatdata
+  if ! bundle exec fedora_to_rof --fedora ${fedora_url} --user "${fedora_user}:${fedora_pass}" --outfile "$JOBPATH/${fedora_id}.rof" "und:${fedora_id}" ; then
+    exit 1
+  fi
+  
+  # add bendo-item
+  jq --arg BENDO_ID "$bendo_id" '.[] += { "bendo-item": $BENDO_ID }' "$JOBPATH/${fedora_id}.rof" > "$JOBPATH/wbendoitem-${fedora_id}.rof"
+
+  # make stub bendo URL
+  file_label=$(jq --raw-output '.[]["content-meta"]["label"]' "$JOBPATH/wbendoitem-${fedora_id}.rof")
+  bendo_stub="bendo:/item/${bendo_id}/${fedora_id}-${file_label}"
+
+  # add stub URL to generic file content-meta
+  jq --arg BENDO_STUB "$bendo_stub" '.[]["content-meta"]["URL"] += $BENDO_STUB'  "$JOBPATH/wbendoitem-${fedora_id}.rof" > "$JOBPATH/metadata-${fedora_id}.rof" 
+
+  # cleanup
+  rm -f "$JOBPATH/${fedora_id}.rof"
+  rm -f "$JOBPATH/wbendoitem-${fedora_id}.rof"
+done
