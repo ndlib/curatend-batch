@@ -127,7 +127,7 @@ class lib_batchs( $batchs_root = '/opt/batchs') {
 	class { 'lib_runit::add':
 		service_name => "batchs",
 		service_path => "/etc/sv/batchs",
-		require => File[['batchsrunitlog', "${batchs_root}/log", "${batchs_root}/tasks/conf", '/etc/init/batchs']],
+		require => File[['batchsrunitlog', "${batchs_root}/log", "${batchs_root}/tasks/conf" ]],
 	} ->
 
 	service { 'batchs':
