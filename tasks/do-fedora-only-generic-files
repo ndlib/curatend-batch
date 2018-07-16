@@ -39,14 +39,18 @@ for pid in $(jq -r 'to_entries[] | [.key, .value] | @csv' ${pid_file}); do
   # add bendo-item
   jq --arg BENDO_ID "$bendo_id" '.[] += { "bendo-item": $BENDO_ID }' "$JOBPATH/${fedora_id}.rof" > "$JOBPATH/wbendoitem-${fedora_id}.rof"
 
+  #make a downloadable file label
+  file_label=$(jq --raw-output '.[]["content-meta"]["label"]' "$JOBPATH/wbendoitem-${fedora_id}.rof" | sed "s/ //g" | sed "s,^./,," )
+  jq --arg FILE_LABEL "$file_label"  '.[]["content-meta"]["label"] = $FILE_LABEL' "$JOBPATH/wbendoitem-${fedora_id}.rof" > "$JOBPATH/wfilelabel-${fedora_id}.rof"
+
   # make stub bendo URL
-  file_label=$(jq --raw-output '.[]["content-meta"]["label"]' "$JOBPATH/wbendoitem-${fedora_id}.rof")
   bendo_stub="bendo:/item/${bendo_id}/${fedora_id}-${file_label}"
 
   # add stub URL to generic file content-meta
-  jq --arg BENDO_STUB "$bendo_stub" '.[]["content-meta"]["URL"] += $BENDO_STUB'  "$JOBPATH/wbendoitem-${fedora_id}.rof" > "$JOBPATH/metadata-${fedora_id}.rof" 
+  jq --arg BENDO_STUB "$bendo_stub" '.[]["content-meta"]["URL"] += $BENDO_STUB'  "$JOBPATH/wfilelabel-${fedora_id}.rof" > "$JOBPATH/metadata-${fedora_id}.rof" 
 
   # cleanup
   rm -f "$JOBPATH/${fedora_id}.rof"
   rm -f "$JOBPATH/wbendoitem-${fedora_id}.rof"
+  rm -f "$JOBPATH/wfilelabel-${fedora_id}.rof"
 done
