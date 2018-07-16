@@ -10,7 +10,7 @@ source "$scriptdir"/conf
 pid_file=/mnt/curatend-batch/data/batch-ingest-blacklist-pids
 
 
-#if no pids provided, error and exit
+#if no pids provided, print message and exit
 if [ ! -e "$pid_file" ]; then
     echo "No $pid_file file found- exiting"
     exit 0
