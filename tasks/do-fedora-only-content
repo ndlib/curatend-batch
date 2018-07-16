@@ -50,11 +50,19 @@ for pid in $(jq -r 'to_entries[] | [.key, .value] | @csv' ${pid_file}); do
   checksum_found=$(grep "$checksum" "$JOBPATH/content_ds" | wc -l) 
 
   # if MD5 checksum not present in datastream, return error
+  # if item was no content datastream, skip it.
 
   if [ $checksum_found -eq 0 ]; then
  	rm -f $download_file
-	echo "Error: $unique_file_label download checksum did not match fedora object."
-	exit 1
+	grep "No datastream could be found" $JOBPATH/content_ds >/dev/null
+        if [ $? -eq 0 ]; then
+    	     echo "Warning: Genericfile for ${fedora_id} has no content datastream. removing metadata-${fedora_id}.rof and skipping"
+             rm -f "$JOBPATH/metadata-${fedora_id}.rof"
+             continue
+        else
+	      echo "Error: $unique_file_label download checksum did not match fedora object."
+	      exit 1
+	fi
   fi
   rm -f $JOBPATH/content_ds
   printf "downloaded ${unique_file_label}...\n"

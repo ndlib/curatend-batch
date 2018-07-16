@@ -5,6 +5,7 @@
 
 echo 'addtask:do-fedora-only-works' >> "$JOBCONTROL"
 echo 'addtask:do-fedora-only-generic-files' >> "$JOBCONTROL"
+echo 'addtask:remove-blacklisted-rofs' >> "$JOBCONTROL"
 echo 'addtask:do-fedora-only-content' >> "$JOBCONTROL"
 echo 'addtask:filename-normalize' >> "$JOBCONTROL"
 echo 'addtask:file-to-url' >> "$JOBCONTROL"

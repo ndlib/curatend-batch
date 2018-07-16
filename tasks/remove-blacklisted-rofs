@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+# Read list of blacklisted pids from global data directory
+# Remove any metata rof files named after this pids 
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+
+pid_file=/mnt/curatend-batch/data/batch-ingest-blacklist-pids
+
+
+#if no pids provided, error and exit
+if [ ! -e "$pid_file" ]; then
+    echo "No $pid_file file found- exiting"
+    exit 0
+fi
+
+# Iterate through pids- if file metadata-$pid.rof found, remove it
+for pid in $(cat ${pid_file}); do
+  if [ -e "$JOBPATH/metadata-${pid}.rof" ]; then
+    rm -f "$JOBPATH/metadata-${pid}.rof"
+    printf "removed metadata-${pid}.rof.\n"
+  fi
+done
