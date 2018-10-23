@@ -10,6 +10,7 @@ if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; th
     echo 'addtask:jsonld-to-rof' >> $JOBCONTROL
   else
     # no jsonld or rof files, so process any csv files
+    echo 'addtask:remove-csv-bom' >> "$JOBCONTROL"
     echo 'addtask:csv-to-rof' >> "$JOBCONTROL"
   fi
 fi

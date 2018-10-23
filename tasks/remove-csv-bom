@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+# Remove any UTF byte order marks from CSV files since utf-8 doesn't need them
+# and Excel insists on adding them.
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+#cd "$gemfile_dir"
+for csv_file in "$JOBPATH"/metadata-*.csv; do
+  echo "$JOBPATH"
+  echo "$csv_file"
+  if [ ! -e "$csv_file" ]; then
+    echo "No metadata-* CSV files in job directory"
+    exit 1
+  fi
+
+  # Tried using sed but there are differences between BSD (osx) and GNU sed.
+  perl -i.bak -pe 's/\xef\xbb\xbf//' "${csv_file}"
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
+  rm "${csv_file}.bak"
+done
