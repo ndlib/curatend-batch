@@ -16,8 +16,8 @@ if [ -z $(find "$JOBPATH" -maxdepth 1 -name 'metadata-*.rof' -print -quit) ]; th
 fi
 echo 'addtask:work-xlat' >> "$JOBCONTROL"
 echo 'addtask:assign-pids' >> "$JOBCONTROL"
-echo 'addtask:filename-normalize' >> "$JOBCONTROL"
 echo 'addtask:file-to-url' >> "$JOBCONTROL"
+echo 'addtask:filename-normalize' >> "$JOBCONTROL"
 echo 'addtask:access-to-relsext' >> "$JOBCONTROL"
 echo 'addtask:date-stamp' >> "$JOBCONTROL"
 echo 'addtask:validate' >> "$JOBCONTROL"
