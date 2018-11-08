@@ -6,10 +6,10 @@
 scriptdir=$(cd $(dirname $0); pwd)
 source "$scriptdir"/conf
 
-#cd "$gemfile_dir"
-for csv_file in "$JOBPATH"/metadata-*.csv; do
-  echo "$JOBPATH"
-  echo "$csv_file"
+# needed for the grep command to work
+export LC_ALL=en_US.UTF-8
+
+for csv_file in metadata-*.csv ; do
   if [ ! -e "$csv_file" ]; then
     echo "No metadata-* CSV files in job directory"
     exit 1
@@ -17,8 +17,14 @@ for csv_file in "$JOBPATH"/metadata-*.csv; do
 
   # Tried using sed but there are differences between BSD (osx) and GNU sed.
   perl -i.bak -pe 's/\xef\xbb\xbf//' "${csv_file}"
-  if [ $? -ne 0 ]; then
+  rm "${csv_file}.bak"
+
+  # now check for invalid utf-8 characters
+  # this assumes we are using GNU grep
+  echo "Scanning $csv_file"
+  if grep -axvnH --max-count 10 '.*' "${csv_file}" ; then
+    echo "Invalid UTF-8 bytes found"
     exit 1
   fi
-  rm "${csv_file}.bak"
 done
+

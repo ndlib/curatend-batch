@@ -1,4 +1,5 @@
 tasks/conf
 curatend-batch
 bin
+*.DS_Store
 
