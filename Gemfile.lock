@@ -1,18 +1,18 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: 885b35fd70c34854e87f9b61ebbaf317ed2a5799
+  revision: a988d7a052ed0b840a09a53e2492ea61d9b85259
   specs:
     rof (1.2.13)
-      activesupport (< 5.0)
       deprecation (~> 0.1)
       ebnf (< 1.0.2)
       json-ld (~> 2.0.0)
-      mime-types (~> 2.4)
+      mime-types
       noids_client
-      nokogiri (~> 1.6.8.1)
+      nokogiri
       rdf (~> 2.0.1)
       rdf-aggregate-repo (~> 2.0.0)
-      rdf-isomorphic
+      rdf-isomorphic (~> 2.0.0)
+      rdf-rdfa (~> 2.0.1)
       rdf-rdfxml (~> 2.0.0)
       rdf-turtle (~> 2.0.0)
       rdf-xsd (~> 2.0.0)
@@ -22,10 +22,10 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.10)
-      activesupport (= 4.2.10)
+    activemodel (4.2.11)
+      activesupport (= 4.2.11)
       builder (~> 3.1)
-    activesupport (4.2.10)
+    activesupport (4.2.11)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -37,10 +37,10 @@ GEM
       net-sftp (>= 2.0.0)
       net-ssh (>= 2.0.14)
       net-ssh-gateway (>= 1.1.0)
-    concurrent-ruby (1.0.5)
+    concurrent-ruby (1.1.4)
     deprecation (0.2.2)
       activesupport
-    domain_name (0.5.20170404)
+    domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
     ebnf (1.0.1)
       rdf (~> 2.0)
@@ -58,7 +58,7 @@ GEM
     htmlentities (4.3.4)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.9.1)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     json (1.8.6)
     json-ld (2.0.0.1)
@@ -66,10 +66,10 @@ GEM
       rdf (~> 2.0)
     link_header (0.0.8)
     mime-types (2.99.3)
-    mini_portile2 (2.1.0)
-    minitest (5.10.3)
+    mini_portile2 (2.4.0)
+    minitest (5.11.3)
     mono_logger (1.1.0)
-    multi_json (1.12.2)
+    multi_json (1.13.1)
     mustermann (0.3.1)
       tool (~> 0.2)
     net-scp (1.2.1)
@@ -83,8 +83,8 @@ GEM
     noids_client (0.0.1)
       json (~> 1.8)
       rest-client (~> 1.6)
-    nokogiri (1.6.8.1)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.9.1)
+      mini_portile2 (~> 2.4.0)
     rack (1.6.8)
     rack-protection (1.5.3)
       rack
@@ -144,14 +144,14 @@ GEM
     sxp (1.0.0)
       rdf (~> 2.0)
     thread_safe (0.3.6)
-    tilt (2.0.8)
+    tilt (2.0.9)
     tool (0.2.3)
-    tzinfo (1.2.4)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
     uber (0.0.15)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.4)
+    unf_ext (0.0.7.5)
     vegas (0.1.11)
       rack (>= 1.0.0)
 
@@ -170,4 +170,4 @@ DEPENDENCIES
   rof!
 
 BUNDLED WITH
-   1.15.3
+   1.16.6
