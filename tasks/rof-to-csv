@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+# Translate ROF files into CSV files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+cd "$gemfile_dir"
+for rof_file in "$JOBPATH"/metadata-*.rof; do
+  if [ ! -e "$rof_file" ]; then
+    echo "No metadata-* ROF files in job directory"
+    exit 1
+  fi
+
+  csv_file=${rof_file%.rof}-new.csv
+  echo "$rof_file"
+  if ! bundle exec rof_to_csv < "$rof_file" > "$csv_file"; then
+    exit 1
+  fi
+done
