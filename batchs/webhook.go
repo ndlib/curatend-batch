@@ -3,6 +3,7 @@ package batchs
 import (
 	"bytes"
 	"encoding/json"
+	raven "github.com/getsentry/raven-go"
 	"io"
 	"io/ioutil"
 	"log"
@@ -63,6 +64,7 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 			if jb.log != nil {
 				jb.log.Printf("== Webhook: %s: %s\n", url, err.Error())
 			}
+			raven.CaptureError(err, nil)
 			continue
 		}
 		if jb.log != nil {
@@ -74,6 +76,7 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 			if err != nil {
 				log.Printf("webhook response: %s: %s", jb.name, err.Error())
 				jb.log.Printf("== Error reading response: %s", err.Error())
+				raven.CaptureError(err, nil)
 			}
 		}
 		r.Body.Close()

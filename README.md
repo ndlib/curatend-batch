@@ -48,6 +48,11 @@ $ cd batches
 $ go test
 ```
 
+## Sentry
+
+CurateND-Batch can optionally send error messages to the Sentry service. Enable it by setting
+the environment variables `SENTRY_DSN`, `SENTRY_RELEASE`, and `SENTRY_ENVIRONMENT`.
+
 # Documentation
 
 * Detailed documentation is available in a [Google Document](https://docs.google.com/document/d/1LtI4QlowI-rcJdFy3535T8417NKPU4FW-zpGi-b-XYk/edit) (ND only).
