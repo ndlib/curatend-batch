@@ -60,7 +60,7 @@ Dir.glob("#{jobpath}/TO_IIIF/*xml") do |work|
     p "#{work_pid}.xml exists"
     works_folder = this_work_dir[0]
     works_folder.files(include_team_drive_items: true, q: "trashed = false") do |file|
-      file.delete(ipermanent: true)
+      file.delete(permanent: true)
     end
   else
     p "#{work_pid}.xml does not exist"
