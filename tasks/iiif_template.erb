@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mets:mets xmlns:dcterms="http://purl.org/dc/terms/" xmlns:mets="http://www.loc.gov/METS/" xmlns:vracore="http://www.vraweb.org/vracore4.htm" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd http://purl.org/dc/terms/                  http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd                  http://www.vraweb.org/vracore4.htm http://www.loc.gov/standards/vracore/vra-strict.xsd">
+        <mets:dmdSec ID="DSC_01_CURATE">
+          <mets:mdWrap MDTYPE="DC">
+            <mets:xmlData>
+            <% if !work_data.by_row[0]['unique_identifier'].nil? %>
+              <dcterms\:identifier><%= work_data.by_row[0]['unique_identifier'] %></dcterms:identifier>
+            <% end %>
+            <% if !work_data.by_row[0]['Label'].nil? %>
+              <dcterms:title><%= work_data.by_row[0]['Label'] %></dcterms:title>
+            <% end %>
+            <% if !work_data.by_row[0]['License'].nil? %>
+              <dcterms:rights><%= work_data.by_row[0]['License'] %></dcterms:rights>
+            <% end %>
+            <% if !work_data.by_row[0]['Attribution'].nil? %>
+            <dcterms:publisher><%= work_data.by_row[0]['Attribution'] %></dcterms:publisher>
+            <% end %>
+            <% if !work_data.by_row[0]['Description'].nil? %>
+            <dcterms:publisher><%= work_data.by_row[0]['Description'] %></dcterms:publisher>
+            <% end %>
+            </mets:xmlData>
+          </mets:mdWrap>
+        </mets:dmdSec>
+
+        </mets:dmdSec>
+        <mets:fileSec>
+            <mets:fileGrp ID="JPG" USE="MASTER">
+                    
+            <% (0).upto(sequence_data.length-1)  do |index| %>        
+
+                        <mets:file ID="ID_<%= sequence_data[index]['Filenames'] %>" MIMETYPE="image/jpeg">
+                            <mets:FLocat LOCTYPE="URL" xlink:href="GOOGLE::CurateND_IIIF_Submission_Data::/<%= iiif_env %>/<%= work_dir %>/<%= sequence_data[index]['Filenames'] %>"/>
+                        </mets:file>
+            <% end %>
+
+            </mets:fileGrp>
+        </mets:fileSec>
+        <mets:structMap TYPE="logical">
+            <mets:div>
+            <% (0).upto(sequence_data.length-1)  do |index| %>        
+
+                <mets:div LABEL=<%= sequence_data[index]['Filenames'] %> ORDER=<%= sequence_data[index]['Label'] %>>
+                    <mets:fptr FILEID="ID_<%= sequence_data[index]['Filenames'] %>" />
+                </mets:div>
+            <% end %>
+            </mets:div>
+        </mets:structMap>
+    </mets:mets>
+
