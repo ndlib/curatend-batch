@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#set up batch job environment
+scriptdir=$(cd $(dirname $0); pwd)
+source $scriptdir/conf
+export JOBPATH
+
+rm -rf $JOBPATH/TO_IIIF/*
+
+for meta_rof in $(ls $JOBPATH/metadata-*.rof)
+do
+  # for each image file
+  for img_pid in $(jq --raw-output '.[]|select(.["af-model"] == "GenericFile")|.pid' $meta_rof )
+  do
+  	# if file has nd:iiif-sequence-order set, add in to manifest, otherwise skip this record
+  	sequence_num=$(jq --arg IMG_PID $img_pid --raw-output '.[]|select(.pid == $IMG_PID)|.["metadata"]["nd:iiif-sequence-order"]' $meta_rof)
+	
+	if [ $sequence_num == null ]; then
+		continue
+	fi
+
+  	image_filename=$(jq --arg IMG_PID $img_pid --raw-output '.[]|select(.pid == $IMG_PID)|.["content-meta"]["label"]' $meta_rof)	
+  	parent_pid=$(jq --arg IMG_PID $img_pid --raw-output '.[]|select(.pid == $IMG_PID)|.["rels-ext"]["isPartOf"][0]' $meta_rof)
+  	unique_identifier=$(echo $parent_pid | sed 's/und://')
+  	label=$(jq --arg PID $parent_pid --raw-output '.[]|select(.pid == $PID)|.["metadata"]["dc:title"]' $meta_rof)
+  	description=$(jq --arg PID $parent_pid --raw-output '.[]|select(.pid == $PID)|.["metadata"]["dc:abstract"]' $meta_rof)
+  	license=$(jq --arg PID $parent_pid --raw-output '.[]|select(.pid == $PID)|.["metadata"]["dc:rights#permissions"]' $meta_rof)
+	attribution=$(jq --arg PID $parent_pid --raw-output '.[]|select(.pid == $PID)|.["metadata"]["dc:creator#administrative_unit"]' $meta_rof)
+
+	mkdir -p $JOBPATH/TO_IIIF/${unique_identifier}
+
+	#we'll need to sort these and add the header line when we're done
+	if [ ! -f $JOBPATH/TO_IIIF/${unique_identifier}/sequence.csv ]; then
+		printf "Filenames,Label,Description\n" > $JOBPATH/TO_IIIF/${unique_identifier}/sequence.csv
+		printf "Label,Description,License,Attribution,Sequence_filename,Sequence_label,Sequence_viewing_experience,unique_identifier,Notify,Metadata_label,Metadata_value\n" > $JOBPATH/TO_IIIF/${unique_identifier}/main.csv
+	fi
+
+	cp $image_filename $JOBPATH/TO_IIIF/${unique_identifier}/images 
+	printf "%s,%s,'%s'\n" ${image_filename} ${sequence_num} "${description}" >> $JOBPATH/TO_IIIF/${unique_identifier}/sequence.csv
+
+	printf "'%s','%s','%s',%s,,Sequence1,individuals,%s,msuhovec@nd.edu\n" "${label}" "${description}" "${license}" "${attribution}" "${unique_identifier}" >>  $JOBPATH/TO_IIIF/${unique_identifier}/main.csv
+  done
+done
+
