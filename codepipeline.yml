@@ -1,0 +1,175 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+
+Description: 'CodePipeline from GitHub commit to S3 using CodeBuild'
+
+
+Metadata:
+
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      LogRetention: {default: Build Log Retention}
+      BuildTimeoutInMinutes: {default: Build Timeout}
+      CodeBuildServiceRole: {default: CodeBuild Service IAM Role}
+      CodePipelineServiceRole: {default: CodePipeline Service IAM Role}
+      GitHubOAuthToken: {default: GitHub OAuth Token}
+      GitHubRepoName: {default: GitHub Repo Name}
+      GitHubRepoOwner: {default: GitHub Repo Owner}
+      GitHubRepoBranch: {default: GitHub Repo Branch to subscribe to}
+      CodeBuildComputeType: {default: CodeBuild Compute Type}
+      CodeBuildImage: {default: CodeBuild Build Image}
+    ParameterGroups:
+    - Label: {default: CodePipeline and CodeBuild Settings}
+      Parameters:
+      - LogRetention
+      - BuildTimeoutInMinutes
+      - CodePipelineServiceRole
+      - CodeBuildServiceRole
+      - CodeBuildComputeType
+      - CodeBuildImage
+    - Label: {default: GitHub Settings}
+      Parameters:
+      - GitHubOAuthToken
+      - GitHubRepoOwner
+      - GitHubRepoName
+      - GitHubRepoBranch
+
+
+Outputs:
+
+  Bucket:
+    Value: !Sub https://console.aws.amazon.com/s3/home?region=${AWS::Region}&bucket=${ArtifactBucket}
+
+  CodeBuildLogs:
+    Value: !Sub https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#logStream:group=${LogGroup}
+
+  CodeBuild:
+    Value: !Sub https://console.aws.amazon.com/codebuild/home?region=${AWS::Region}#/projects/${Project}/view
+
+  Pipeline:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+
+  PipelineLogs:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}/history
+
+  GitHubRepo:
+    Value: !Sub https://github.com/${GitHubRepoOwner}/${GitHubRepoName}.git
+
+
+Conditions:
+
+  DefaultCodeBuildServiceRole: !Equals ['', !Ref CodeBuildServiceRole]
+  DefaultCodePipelineServiceRole: !Equals ['', !Ref CodePipelineServiceRole]
+
+
+Parameters:
+
+  LogRetention:
+    Type: Number
+    Description: days
+    Default: 400
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+
+  BuildTimeoutInMinutes:
+    Type: Number
+    Description: minutes
+    Default: 10
+    MinValue: 5
+    MaxValue: 480
+
+  CodeBuildServiceRole:
+    Type: String
+    Description: Arn
+    Default: ''
+
+  CodePipelineServiceRole:
+    Type: String
+    Description: Arn
+    Default: ''
+
+  GitHubOAuthToken:
+    Type: String
+    Description: Arn
+    NoEcho: true
+
+  GitHubRepoOwner:
+    Type: String
+    Default: ndlib
+
+  GitHubRepoName:
+    Type: String
+
+  GitHubRepoBranch:
+    Type: String
+    Default: master
+
+  CodeBuildComputeType:
+    Type: String
+    Default: BUILD_GENERAL1_MEDIUM
+    AllowedValues:
+    - BUILD_GENERAL1_SMALL
+    - BUILD_GENERAL1_MEDIUM
+    - BUILD_GENERAL1_LARGE
+
+  CodeBuildImage:
+    Type: String
+    Default: 'centos:6'
+
+
+Resources:
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/codebuild/${Project}
+      RetentionInDays: !Ref LogRetention
+
+  Project:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Description: !Sub '${GitHubRepoName} from GitHub to S3 using centos:6'
+      ServiceRole: !If [DefaultCodeBuildServiceRole, !ImportValue 'codebuild:role', !Ref CodeBuildServiceRole]
+      TimeoutInMinutes: !Ref BuildTimeoutInMinutes
+      Artifacts: {Type: CODEPIPELINE}
+      Source: {Type: CODEPIPELINE}
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: !Ref CodeBuildComputeType
+        Image: !Ref CodeBuildImage
+        EnvironmentVariables:
+        - {Name: TARGET_BUCKET, Value: !Ref ArtifactBucket}
+        - {Name: APPLICATION_NAME, Value: !Ref GitHubRepoName}
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !If [DefaultCodePipelineServiceRole, !ImportValue 'codepipeline:role', !Ref CodePipelineServiceRole]
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: !Ref GitHubRepoName
+          ActionTypeId: {Category: Source, Owner: ThirdParty, Version: '1', Provider: GitHub}
+          OutputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-source'
+          Configuration:
+            OAuthToken: !Ref GitHubOAuthToken
+            Owner: !Ref GitHubRepoOwner
+            Repo: !Ref GitHubRepoName
+            Branch: !Ref GitHubRepoBranch
+      - Name: Build
+        Actions:
+        - Name: !Ref GitHubRepoName
+          ActionTypeId: {Category: Build, Owner: AWS, Version: '1', Provider: CodeBuild}
+          InputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-source'
+          OutputArtifacts:
+          - Name: !Sub '${GitHubRepoName}'
+          Configuration: {ProjectName: !Ref Project}
+...
