@@ -135,10 +135,10 @@ Resources:
               - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${BuildProject}"
               - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${BuildProject}:*"
           - Action:
-              - "ssm:GetParameters"
+              - "secretsmanager:GetSecretValue"
             Effect: "Allow"
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/all/github/ndlib-git/oauth"
+              - !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:/all/github/ndlib-git-??????"
       Roles: 
         - !Ref BuildProjectServiceRole
 
@@ -247,7 +247,7 @@ Resources:
         ComputeType: !Ref CodeBuildComputeType
         Image: !Ref CodeBuildImage
         EnvironmentVariables:
-        - {Name: GITHUB_OAUTH_TOKEN, Type: PARAMETER_STORE, Value: "/all/github/ndlib-git/oauth"}
+        - {Name: GITHUB_OAUTH_TOKEN, Type: SECRETS_MANAGER, Value: "/all/github/ndlib-git:oauth::"}
       
 
   Pipeline:
