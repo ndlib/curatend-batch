@@ -93,6 +93,11 @@ Parameters:
     Type: String
     Description: S3 bucket name
 
+  TargetPrefix:
+    Type: String
+    Description: Prefix to use when putting artifacts into the target bucket
+    Default: 'curatend-batch/rpms'
+
 Resources:
 
   ArtifactBucket:
@@ -213,7 +218,7 @@ Resources:
               AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
         Version: "2012-10-17"
       Policies:
-        - PolicyName: "ReadWriteArtifacts"
+        - PolicyName: "ReadBuiltArtifacts"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -222,15 +227,15 @@ Resources:
               Resource: 
                 - !GetAtt ArtifactBucket.Arn
                 - !Sub "${ArtifactBucket.Arn}/*"
-        - PolicyName: "WriteArtifacts"
+        - PolicyName: "WriteToTargetBucket"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               Action: "s3:PutObject"
               Effect: "Allow"
               Resource: 
-              - !Sub "arn:aws:s3:::${TargetBucket}"
-              - !Sub "arn:aws:s3:::${TargetBucket}/*"
+              - !Sub "arn:aws:s3:::${TargetBucket}/${TargetPrefix}"
+              - !Sub "arn:aws:s3:::${TargetBucket}/${TargetPrefix}/*"
 
   BuildProject:
     Type: AWS::CodeBuild::Project
@@ -287,7 +292,7 @@ Resources:
           ActionTypeId: {Category: Deploy, Owner: AWS, Version: '1', Provider: S3}
           InputArtifacts:
           - Name: !Sub '${GitHubRepoName}-build'
-          Configuration: {BucketName: !Ref TargetBucket, Extract: true}
+          Configuration: {BucketName: !Sub "${TargetBucket}/${TargetPrefix}", Extract: true}
 
   GitHubWebhook:
     Type: AWS::CodePipeline::Webhook
