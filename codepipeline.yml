@@ -1,0 +1,322 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+
+Description: 'CodePipeline from GitHub commit to S3 using CodeBuild'
+
+
+Metadata:
+
+  AWS::CloudFormation::Interface:
+    ParameterLabels:
+      LogRetention: {default: Build Log Retention}
+      BuildTimeoutInMinutes: {default: Build Timeout}
+      GitHubRepoName: {default: GitHub Repo Name}
+      GitHubRepoOwner: {default: GitHub Repo Owner}
+      GitHubRepoBranch: {default: GitHub Repo Branch to subscribe to}
+      CodeBuildComputeType: {default: CodeBuild Compute Type}
+      CodeBuildImage: {default: CodeBuild Build Image}
+    ParameterGroups:
+    - Label: {default: CodePipeline and CodeBuild Settings}
+      Parameters:
+      - LogRetention
+      - BuildTimeoutInMinutes
+      - CodeBuildComputeType
+      - CodeBuildImage
+    - Label: {default: GitHub Settings}
+      Parameters:
+      - GitHubRepoOwner
+      - GitHubRepoName
+      - GitHubRepoBranch
+
+
+Outputs:
+
+  Bucket:
+    Value: !Sub https://console.aws.amazon.com/s3/home?region=${AWS::Region}&bucket=${ArtifactBucket}
+
+  CodeBuildLogs:
+    Value: !Sub https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#logStream:group=${LogGroup}
+
+  CodeBuild:
+    Value: !Sub https://console.aws.amazon.com/codebuild/home?region=${AWS::Region}#/projects/${BuildProject}/view
+
+  Pipeline:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}
+
+  PipelineLogs:
+    Value: !Sub https://console.aws.amazon.com/codepipeline/home?region=${AWS::Region}#/view/${Pipeline}/history
+
+  GitHubRepo:
+    Value: !Sub https://github.com/${GitHubRepoOwner}/${GitHubRepoName}.git
+
+Parameters:
+
+  LogRetention:
+    Type: Number
+    Description: days
+    Default: 400
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653]
+
+  BuildTimeoutInMinutes:
+    Type: Number
+    Description: minutes
+    Default: 10
+    MinValue: 5
+    MaxValue: 480
+
+  GitHubRepoOwner:
+    Type: String
+    Default: ndlib
+
+  GitHubRepoName:
+    Type: String
+    Default: curatend-batch
+
+  GitHubRepoBranch:
+    Type: String
+    Default: master
+
+  CodeBuildComputeType:
+    Type: String
+    Default: BUILD_GENERAL1_SMALL
+    AllowedValues:
+    - BUILD_GENERAL1_SMALL
+    - BUILD_GENERAL1_MEDIUM
+    - BUILD_GENERAL1_LARGE
+
+  CodeBuildImage:
+    Type: String
+    Default: 'ndlib/bendo-buildimage'
+
+  TargetBucket:
+    Type: String
+    Description: S3 bucket name
+
+  TargetPrefix:
+    Type: String
+    Description: Prefix to use when putting artifacts into the target bucket
+    Default: 'curatend-batch/rpms'
+
+Resources:
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/codebuild/${BuildProject}
+      RetentionInDays: !Ref LogRetention
+
+  BuildProjectServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+        Version: "2012-10-17"
+
+  BuildProjectServicePolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "CodeBuildServicePolicy"
+      PolicyDocument:
+        Statement: 
+          - Action:
+              - "s3:GetObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+              - "s3:DeleteObject*"
+              - "s3:PutObject*"
+              - "s3:Abort*"
+            Effect: "Allow"
+            Resource:
+              - !GetAtt ArtifactBucket.Arn
+              - !Sub "${ArtifactBucket.Arn}/*"
+          - Action: 
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Effect: "Allow"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${BuildProject}"
+              - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${BuildProject}:*"
+          - Action:
+              - "secretsmanager:GetSecretValue"
+            Effect: "Allow"
+            Resource:
+              - !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:/all/github/ndlib-git-??????"
+      Roles: 
+        - !Ref BuildProjectServiceRole
+
+  CodePipelineServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal: 
+              Service: "codepipeline.amazonaws.com"
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: "ReadWriteArtifacts"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action:
+                - "s3:GetObject*"
+                - "s3:GetBucket*"
+                - "s3:List*"
+                - "s3:DeleteObject*"
+                - "s3:PutObject*"
+                - "s3:Abort*"
+              Effect: "Allow"
+              Resource: 
+                - !GetAtt ArtifactBucket.Arn
+                - !Sub "${ArtifactBucket.Arn}/*"
+        - PolicyName: "AssumeBuildActionRole"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: "sts:AssumeRole"
+              Effect: "Allow"
+              Resource: 
+                - !GetAtt CodePipelineBuildActionRole.Arn
+        - PolicyName: "AssumeDeliverActionRole"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: "sts:AssumeRole"
+              Effect: "Allow"
+              Resource: 
+                - !GetAtt CodePipelineDeliverActionRole.Arn
+
+  CodePipelineBuildActionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal: 
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: "StartBuilds"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action:
+                - "codebuild:BatchGetBuilds"
+                - "codebuild:StartBuild"
+                - "codebuild:StopBuild"
+              Effect: "Allow"
+              Resource: 
+                - !GetAtt  BuildProject.Arn
+
+  CodePipelineDeliverActionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement: 
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal: 
+              AWS: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"
+        Version: "2012-10-17"
+      Policies:
+        - PolicyName: "ReadBuiltArtifacts"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: "s3:GetObject"
+              Effect: "Allow"
+              Resource: 
+                - !GetAtt ArtifactBucket.Arn
+                - !Sub "${ArtifactBucket.Arn}/*"
+        - PolicyName: "WriteToTargetBucket"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: "s3:PutObject"
+              Effect: "Allow"
+              Resource: 
+              - !Sub "arn:aws:s3:::${TargetBucket}/${TargetPrefix}"
+              - !Sub "arn:aws:s3:::${TargetBucket}/${TargetPrefix}/*"
+
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Description: !Sub '${GitHubRepoName} from GitHub to S3 using centos:6'
+      ServiceRole: !Ref BuildProjectServiceRole
+      TimeoutInMinutes: !Ref BuildTimeoutInMinutes
+      Artifacts:
+        Type: CODEPIPELINE
+      Source: 
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: !Ref CodeBuildComputeType
+        Image: !Ref CodeBuildImage
+        EnvironmentVariables:
+        - {Name: GITHUB_OAUTH_TOKEN, Type: SECRETS_MANAGER, Value: "/all/github/ndlib-git:oauth::"}
+      
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt  CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: !Ref GitHubRepoName
+          ActionTypeId: {Category: Source, Owner: ThirdParty, Version: '1', Provider: GitHub}
+          OutputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-source'
+          Configuration:
+            OAuthToken: "{{resolve:secretsmanager:/all/github/ndlib-git:SecretString:oauth::}}"
+            Owner: !Ref GitHubRepoOwner
+            Repo: !Ref GitHubRepoName
+            Branch: !Ref GitHubRepoBranch
+            PollForSourceChanges: false
+      - Name: Build
+        Actions:
+        - Name: !Ref GitHubRepoName
+          RoleArn: !GetAtt CodePipelineBuildActionRole.Arn
+          ActionTypeId: {Category: Build, Owner: AWS, Version: '1', Provider: CodeBuild}
+          InputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-source'
+          OutputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-build'
+          Configuration: {ProjectName: !Ref BuildProject}
+      - Name: Deliver
+        Actions:
+        - Name: !Ref GitHubRepoName
+          RoleArn: !GetAtt CodePipelineDeliverActionRole.Arn
+          ActionTypeId: {Category: Deploy, Owner: AWS, Version: '1', Provider: S3}
+          InputArtifacts:
+          - Name: !Sub '${GitHubRepoName}-build'
+          Configuration: {BucketName: !Sub "${TargetBucket}/${TargetPrefix}", Extract: true}
+
+  GitHubWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: "GITHUB_HMAC"
+      AuthenticationConfiguration:
+        SecretToken: "{{resolve:secretsmanager:/all/github/ndlib-git:SecretString:oauth::}}"
+      Filters:
+        - JsonPath: "$.ref"
+          MatchEquals: "refs/heads/{GitHubRepoBranch}"
+      TargetAction: !Ref GitHubRepoName
+      TargetPipeline: !Ref Pipeline
+      TargetPipelineVersion: 1
+      RegisterWithThirdParty: true
+...

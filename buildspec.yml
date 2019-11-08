@@ -1,0 +1,21 @@
+---
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - mkdir -p /go/src/github.com/ndlib/curatend-batch
+      - cd /go/src/github.com/ndlib/curatend-batch
+      - git init
+      - git remote add origin "https://$GITHUB_OAUTH_TOKEN:x-oauth-basic@github.com/ndlib/curatend-batch.git"
+      - git fetch
+      - git checkout -f "$CODEBUILD_RESOLVED_SOURCE_VERSION"
+  build:
+    commands:
+      - export PATH="/go/bin:/usr/local/go/bin:$PATH"
+      - export GOPATH=/go
+      - make rpm
+artifacts:
+  base-directory: /go/src/github.com/ndlib/curatend-batch
+  files:
+    - curatend-batch-*rpm
+...
