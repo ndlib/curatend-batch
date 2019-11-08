@@ -314,7 +314,7 @@ Resources:
         SecretToken: "{{resolve:secretsmanager:/all/github/ndlib-git:SecretString:oauth::}}"
       Filters:
         - JsonPath: "$.ref"
-          MatchEquals: "refs/heads/{GitHubRepoBranch}"
+          MatchEquals: "refs/heads/{Branch}"
       TargetAction: !Ref GitHubRepoName
       TargetPipeline: !Ref Pipeline
       TargetPipelineVersion: 1
