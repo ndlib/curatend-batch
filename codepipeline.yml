@@ -79,7 +79,7 @@ Parameters:
 
   CodeBuildComputeType:
     Type: String
-    Default: BUILD_GENERAL1_MEDIUM
+    Default: BUILD_GENERAL1_SMALL
     AllowedValues:
     - BUILD_GENERAL1_SMALL
     - BUILD_GENERAL1_MEDIUM
@@ -126,7 +126,13 @@ Resources:
       PolicyName: "CodeBuildServicePolicy"
       PolicyDocument:
         Statement: 
-          - Action: "s3:*"
+          - Action:
+              - "s3:GetObject*"
+              - "s3:GetBucket*"
+              - "s3:List*"
+              - "s3:DeleteObject*"
+              - "s3:PutObject*"
+              - "s3:Abort*"
             Effect: "Allow"
             Resource:
               - !GetAtt ArtifactBucket.Arn
@@ -162,7 +168,13 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              Action: "s3:*"
+              Action:
+                - "s3:GetObject*"
+                - "s3:GetBucket*"
+                - "s3:List*"
+                - "s3:DeleteObject*"
+                - "s3:PutObject*"
+                - "s3:Abort*"
               Effect: "Allow"
               Resource: 
                 - !GetAtt ArtifactBucket.Arn
