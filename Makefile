@@ -26,4 +26,6 @@ rpm: curatend-batch
 	                --description "batch ingest daemon" \
 	                --rpm-user app \
 	                --rpm-group app \
-			curatend-batch=/opt/batchs/bin/curatend-batch
+			curatend-batch=/opt/batchs/bin/curatend-batch \
+			tasks/csv-to-mets.rb=/opt/batchs/tasks/csv-to-mets.rb
+
