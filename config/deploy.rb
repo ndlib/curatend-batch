@@ -107,20 +107,6 @@ namespace :deploy do
   end
 end
 
-
-namespace :und do
-  def run_puppet(options={})
-    local_module_path = File.join('/home/app/curatend-batch/current', 'puppet', 'modules')
-    option_string = options.map { |k,v| "#{k} => '#{v}'" }.join(', ')
-    run %Q{sudo puppet apply --modulepath=#{local_module_path}:/global/puppet_standalone/modules:/etc/puppet/modules:/etc/puppet/environments/production/modules -e "class { 'lib_curatend_batch': #{option_string} }"}
-  end
-
-  desc "Run puppet using the modules supplied by the application"
-  task :puppet, :roles => :app do
-    run_puppet()
-  end
-end
-
 #############################################################
 #  Callbacks
 #############################################################
@@ -147,11 +133,10 @@ def common
 
   default_environment['PATH'] = '/opt/ruby/current/bin:$PATH'
 
-  before 'bundle:install', 'und:puppet'
   after 'deploy', 'deploy:cleanup'
 end
 
-set    :domain,     fetch(:host, 'libvirt6.library.nd.edu')
+set    :domain,     fetch(:host, 'libvirt6.lc.nd.edu')
 server "app@#{domain}", :app
 common()
 
