@@ -4,7 +4,7 @@
           <mets:mdWrap MDTYPE="DC">
             <mets:xmlData>
             <% if !work_data[0]['unique_identifier'].nil? %>
-              <dcterms\:identifier><%= work_data[0]['unique_identifier'] %></dcterms:identifier>
+              <dcterms:identifier><%= work_data[0]['unique_identifier'] %></dcterms:identifier>
             <% end %>
             <% if !work_data[0]['Label'].nil? %>
               <dcterms:title><%= work_data[0]['Label'] %></dcterms:title>
