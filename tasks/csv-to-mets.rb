@@ -19,7 +19,7 @@ class IiifData
 
   # this is what ERB::result calls to get data
   def get_binding
-    binding
+    binding()
   end
 end
 
@@ -39,14 +39,14 @@ Dir.chdir("#{jobpath}/TO_IIIF")
 # Iterate through subdirectories under TO_IIIF-one per work, named by CurateND pid
 
 Dir.glob('*') do |work_dir|
-  main_table = CSV.parse(File.read("#{jobpath}/TO_IIIF/#{work_dir}/main.csv"), quote_char: "'", headers: true)
-  sequence_table = CSV.parse(File.read("#{jobpath}/TO_IIIF/#{work_dir}/sequence.csv"), quote_char: "'", headers: true)
+  main_table = CSV.parse(File.read("#{jobpath}/TO_IIIF/#{work_dir}/main.csv"), {:quote_char => "\'", :headers => true})
+  sequence_table = CSV.parse(File.read("#{jobpath}/TO_IIIF/#{work_dir}/sequence.csv"), {:quote_char => "\'", :headers => true})
 
   # instantiate iiif binding class to pass data to template
   iiif_data = IiifData.new(main_table, sequence_table, work_dir, iiif_env)
 
   # read in and build template
-  mets_xml = ERB.new(File.read("#{jobpath}/iiif_template.erb"))
+  mets_xml = ERB.new(File.read("/opt/batchs/tasks/iiif_template.erb"))
   mets_xml_output = mets_xml.result(iiif_data.get_binding)
 
   # Write it to proper directory
