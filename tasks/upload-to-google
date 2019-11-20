@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# set environment, run upload-to-googledrive.rb script
+
+# upload configuration
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+export JOBPATH
+
+$scriptdir/upload-to-googledrive.rb
