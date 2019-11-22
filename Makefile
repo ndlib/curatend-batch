@@ -26,4 +26,5 @@ rpm: curatend-batch
 	                --description "batch ingest daemon" \
 	                --rpm-user app \
 	                --rpm-group app \
+			curatend-batch=/opt/batchs/bin/curatend-batch \
 			tasks=/opt/batchs/tasks
