@@ -8,4 +8,6 @@ source "$scriptdir"/conf
 
 export JOBPATH
 
-$scriptdir/upload-to-googledrive.rb
+cd $gemfile_dir
+
+bundle exec /opt/batchs/tasks/upload-to-googledrive.rb
