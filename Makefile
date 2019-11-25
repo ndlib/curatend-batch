@@ -27,4 +27,4 @@ rpm: curatend-batch
 	                --rpm-user app \
 	                --rpm-group app \
 			curatend-batch=/opt/batchs/bin/curatend-batch \
-			tasks=/opt/batchs/tasks
+			tasks=/opt/batchs
