@@ -17,7 +17,7 @@ jobpath = ENV['JOBPATH']
 
 unless File.directory?("#{jobpath}/TO_IIIF")
   p 'No works to upload to IIIF pipeline.'
-  works 0
+  exit 0
 end
 
 # check that GOOGLE_API_JSON is set- path of credentials file
