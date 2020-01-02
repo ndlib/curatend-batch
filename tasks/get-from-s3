@@ -1,0 +1,36 @@
+#!/bin/bash -e
+
+# Fetch Curate API transactions from S3 -> FROM_S3/<transaction_id>
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+transactions_file="${JOBPATH}/api_transactions"
+
+#if no trasactions provided, error and exit
+if [ ! -e "$transactions_file" ]; then
+    echo "No api_transactions file in job directory"
+    exit 1
+fi
+
+#get transaction id
+trx_id=$(jq --raw-output  .trx_id $transactions_file)
+
+#create a destination directory
+mkdir -p "${JOBPATH}/FROM_S3/$trx_id"
+
+# The AWS credentials are set in the env
+# (AWS_ACCESS_KEY AWS_SECRET_ACCESS_KEY)
+# as well as the api_upload bucket (S3_BUCKET)
+
+# copy upload transaction data from S3
+aws s3 cp --recursive s3://$S3_BUCKET/$trx_id ${JOBPATH}/FROM_S3/$trx_id
+
+if [ $? -ne 0 ]
+then
+	echo "ERROR: Unable to download from S3://$S3_BUCKET/$trx_id"
+        exit 1
+fi
+
+exit 0
+
