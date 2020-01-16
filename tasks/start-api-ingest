@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# start-api-ingest  workflow task
+# It adds the actual work to do to the job's task list
+
+echo 'addtask:get-from-s3' >> "$JOBCONTROL"
+echo 'addtask:api-to-jsonld' >> "$JOBCONTROL"

@@ -13,7 +13,9 @@ group :default do
   gem 'rdf-rdfa', '~> 2.0.1'
   gem 'deprecation', '~> 0.2.2'
   gem 'mustermann', '~> 0.3.1'
+  gem 'signet', '0.11'
   gem 'google_drive'
+  
 end
 
 group :deploy do

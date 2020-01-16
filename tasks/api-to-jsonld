@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+#  FROM_S3/<transaction_id> to jsonlds and files
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+transactions_file="${JOBPATH}/api_transactions"
+
+#if no trasactions provided, error and exit
+if [ ! -e "$transactions_file" ]; then
+    echo "No api_transactions file in job directory"
+    exit 1
+fi
+
+#get transaction id
+trx_id=$(jq --raw-output  .trx_id $transactions_file)
+
+for i in $(ls ${JOBPATH}/FROM_S3/$trx_id/*json)
+do
+	echo $i
+done
+
+exit 0
+if [ $? -ne 0 ]
+then
+	echo "ERROR: Unable to download from S3://$S3_BUCKET/$trx_id"
+        exit 1
+fi
+
+exit 0
+

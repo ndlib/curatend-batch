@@ -50,7 +50,7 @@ GEM
       sxp (~> 1.0)
     equivalent-xml (0.6.0)
       nokogiri (>= 1.4.3)
-    faraday (0.17.0)
+    faraday (0.17.3)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
     google-api-client (0.30.10)
@@ -91,7 +91,7 @@ GEM
       rdf (>= 2.2.8, < 4.0)
     jwt (2.2.1)
     link_header (0.0.8)
-    memoist (0.16.1)
+    memoist (0.16.2)
     mime-types (2.99.3)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
@@ -112,10 +112,10 @@ GEM
     noids_client (0.0.1)
       json (~> 1.8)
       rest-client (~> 1.6)
-    nokogiri (1.10.5)
+    nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
     os (1.0.1)
-    public_suffix (4.0.1)
+    public_suffix (4.0.3)
     rack (1.6.12)
     rack-protection (1.5.5)
       rack
@@ -210,6 +210,7 @@ DEPENDENCIES
   rdf-rdfa (~> 2.0.1)
   resque (~> 1.23)
   rof!
+  signet (= 0.11)
 
 BUNDLED WITH
    1.17.3
