@@ -5,3 +5,4 @@
 
 echo 'addtask:get-from-s3' >> "$JOBCONTROL"
 echo 'addtask:api-to-jsonld' >> "$JOBCONTROL"
+echo 'addtask:start' >> "$JOBCONTROL"
