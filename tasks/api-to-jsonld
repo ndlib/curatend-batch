@@ -16,17 +16,24 @@ fi
 #get transaction id
 trx_id=$(jq --raw-output  .trx_id $transactions_file)
 
+# copy json to JOBPATH base dir
 for i in $(ls ${JOBPATH}/FROM_S3/$trx_id/*json)
 do
-	echo $i
+	cp -f $i ${JOBPATH}/$(basename $i)
 done
 
-exit 0
-if [ $? -ne 0 ]
-then
-	echo "ERROR: Unable to download from S3://$S3_BUCKET/$trx_id"
-        exit 1
-fi
+#rename to jsonld
+rename .json .jsonld ${JOBPATH}/*json
 
-exit 0
+#copy WEBHOK created by upload
+cp -f ${JOBPATH}/FROM_S3/$trx_id/WEBHOOK ${JOBPATH}/WEBHOOK
 
+#reassemble upload segments, & rename using nd:filename
+for i in $(ls ${JOBPATH}/metadata-file*jsonld)
+do
+    pid=$(jq --raw-output '.["@context"]["@id"]' $i)
+    pid=$(echo $pid | sed "s/und://")
+    filename=$(jq --raw-output '.["nd:filename"]' $i)
+
+    cat ${JOBPATH}/FROM_S3/$trx_id/${pid}* > ${JOBPATH}/$filename
+done
