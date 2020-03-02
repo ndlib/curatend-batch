@@ -25,13 +25,13 @@ done
 #rename to jsonld
 rename .json .jsonld ${JOBPATH}/*json
 
-#copy WEBHOK created by upload
+#copy WEBHOOK created by upload
 cp -f ${JOBPATH}/FROM_S3/$trx_id/WEBHOOK ${JOBPATH}/WEBHOOK
 
 #reassemble upload segments, & rename using nd:filename
 for i in $(ls ${JOBPATH}/metadata-file*jsonld)
 do
-    pid=$(jq --raw-output '.["@context"]["@id"]' $i)
+    pid=$(jq --raw-output '.["@id"]' $i)
     pid=$(echo $pid | sed "s/und://")
     filename=$(jq --raw-output '.["nd:filename"]' $i)
 
