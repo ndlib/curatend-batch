@@ -15,6 +15,7 @@ group :default do
   gem 'mustermann', '~> 0.3.1'
   gem 'signet', '0.11'
   gem 'google_drive'
+  gem 'bundler', '~> 1.17.3'
   
 end
 
