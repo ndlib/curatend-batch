@@ -67,6 +67,14 @@ func (ctx *Context) callWebhooks(jb *Job) error {
 			raven.CaptureError(err, nil)
 			continue
 		}
+		if r.StatusCode != http.StatusOK {
+			raven.CaptureMessage("Webhook replied with status "+r.Status,
+				map[string]string{
+					"job":     jb.name,
+					"webhook": url,
+					"state":   jb.state.String(),
+				})
+		}
 		if jb.log != nil {
 			jb.log.Printf("== Webhook: %s .. %d", url, r.StatusCode)
 			// put first 4k of response body into log
