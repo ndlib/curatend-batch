@@ -1,8 +1,0 @@
-#!/bin/bash
-
-scriptdir=$(cd $(dirname $0); pwd)
-source "$scriptdir"/conf
-
-export JOBPATH
-
-$scriptdir/csv-to-mets.rb

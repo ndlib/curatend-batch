@@ -1,33 +1,10 @@
 :quiet# List all tasks from RAILS_ROOT using: cap -T
-#
-# NOTE: The SCM command expects to be at the same path on both the local and
-# remote machines. The default git path is: '/shared/git/bin/git'.
 
 set :bundle_roles, [:app]
 set :bundle_flags, "--deployment"
+set :ruby_root, '/opt/rh/rh-ruby26'
 require 'bundler/capistrano'
-# see http://gembundler.com/v1.3/deploying.html
-# copied from https://github.com/carlhuda/bundler/blob/master/lib/bundler/deployment.rb
-#
-# Install the current Bundler environment. By default, gems will be \
-#  installed to the shared/bundle path. Gems in the development and \
-#  test group will not be installed. The install command is executed \
-#  with the --deployment and --quiet flags. If the bundle cmd cannot \
-#  be found then you can override the bundle_cmd variable to specifiy \
-#  which one it should use. The base path to the app is fetched from \
-#  the :latest_release variable. Set it for custom deploy layouts.
-#
-#  You can override any of these defaults by setting the variables shown below.
-#
-#  N.B. bundle_roles must be defined before you require 'bundler/#{context_name}' \
-#  in your deploy.rb file.
-#
-#    set :bundle_gemfile,  "Gemfile"
-#    set :bundle_dir,      File.join(fetch(:shared_path), 'bundle')
-#    set :bundle_flags,    "--deployment --quiet"
-#    set :bundle_without,  [:development, :test]
-#    set :bundle_cmd,      "bundle" # e.g. "/opt/ruby/bin/bundle"
-#    set :bundle_roles,    #{role_default} # e.g. [:app, :batch]
+
 #############################################################
 #  Settings
 #############################################################
@@ -51,7 +28,7 @@ set :deploy_via, :remote_cache
 namespace :env do
   desc "Set command paths"
   task :set_paths do
-    set :bundle_cmd, '/opt/ruby/current/bin/bundle'
+    set :bundle_cmd, "#{ruby_root}/root/usr/local/bin/bundle"
     set :rake,      "#{bundle_cmd} exec rake"
   end
 end
@@ -89,12 +66,12 @@ namespace :deploy do
 
   desc "Start Application"
   task :start, :roles => :app do
-    # done by upstart
+    # done by runsvdir
   end
 
   desc "Restart application"
   task :restart, :roles => :app do
-    # done by upstart
+    # done by runsvdir
   end
 
   task :stop, :roles => :app do
@@ -131,12 +108,13 @@ def common
   set :user,      'app'
   set :bundle_without, [:development, :test, :debug]
 
-  default_environment['PATH'] = '/opt/ruby/current/bin:$PATH'
+  default_environment['PATH'] = "#{ruby_root}/root/usr/local/bin:/opt/rh/nodejs010/root/usr/bin:$PATH"
+  default_environment['LD_LIBRARY_PATH'] = "#{ruby_root}/root/lib64:/opt/rh/nodejs010/root/lib64:/opt/rh/v8314/root/lib64:$LD_LIBRARY_PATH"
 
   after 'deploy', 'deploy:cleanup'
 end
 
-set    :domain,     fetch(:host, 'libvirt6.lc.nd.edu')
+set    :domain,     fetch(:host, 'curate-test1.lc.nd.edu')
 server "app@#{domain}", :app
 common()
 
