@@ -1,7 +1,6 @@
 GIT
   remote: https://github.com/ndlib/rof
-  revision: e08083d4ffe050a9bc7e6b6bcf66c455e35b992a
-  branch: curate-185
+  revision: 39ccaf6b35d690384e1e9373a92dd969224414bd
   specs:
     rof (1.3.3)
       deprecation (~> 0.1)
