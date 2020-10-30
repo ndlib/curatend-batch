@@ -45,12 +45,16 @@ func (ctx *Context) Run() error {
 			// seed it with the default task `start`
 			jb.Todo = append(jb.Todo, "start")
 		}
+		starttime := time.Now()
 		if runjob {
 			if err = jb.process(); err == nil {
 				jb.state = StateSuccess
 			}
 		}
-		log.Printf("Done processing job %s (%s)", jb.name, jb.state)
+		// Record the duration of the job to be scraped out later.
+		// Don't change the format of the log line without speaking to ESU
+		duration := time.Now().Sub(starttime)
+		log.Printf("Done processing job %s (%s) %.3fs", jb.name, jb.state, duration.Seconds())
 		ctx.callWebhooks(jb)
 		err = ctx.q.FinishJob(jb)
 		if err != nil {
