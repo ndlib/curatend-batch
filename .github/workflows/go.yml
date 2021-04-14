@@ -1,0 +1,33 @@
+name: Curate Batch CI
+
+on:
+  push:
+    branches-ignore: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        go: [ '1.14', '1.13' ]
+    name: Go ${{ matrix.go }} Test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Run build
+        env:
+          GOPATH: ${{ github.workspace }}
+        run: |
+          go get -u github.com/$GITHUB_REPOSITORY
+          go build
+      - name: Testing
+        env:
+          GOPATH: ${{ github.workspace }}
+        run: |
+          cd batchs
+          go test
