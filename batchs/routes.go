@@ -17,19 +17,19 @@ import (
 type RESTServer struct {
 	// Port number to run bendo on. defaults to 15000
 	PortNumber string
-	QueuePath  *fileQueue
+	QueuePath  *FileQueue
 	Version    string
 }
 
 // Run initializes and starts all the goroutines used by the server. It then
 // blocks listening for and handling http requests. This function never returns.
-func (s *RESTServer) Run() {
-	if s.PortNumber == "" {
-		s.PortNumber = "15000"
+func (server *RESTServer) Run() {
+	if server.PortNumber == "" {
+		server.PortNumber = "15000"
 	}
 
 	for {
-		err := http.ListenAndServe(":"+s.PortNumber, s.addRoutes())
+		err := http.ListenAndServe(":"+server.PortNumber, server.addRoutes())
 
 		if err != nil {
 			log.Println(err)
@@ -48,15 +48,15 @@ func (server *RESTServer) addRoutes() http.Handler {
 		{"GET", "/", server.WelcomeHandler},
 		{"HEAD", "/", server.WelcomeHandler},
 		{"GET", "/jobs", server.GetJobsHandler},
-		{"GET", "/jobs/:id", server.GetJobIdHandler},
-		{"HEAD", "/jobs/:id", server.GetJobIdHandler},
-		{"GET", "/jobs/:id/files/*path", server.GetJobIdFileHandler},
-		{"HEAD", "/jobs/:id/files/*path", server.GetJobIdFileHandler},
-		{"PUT", "/jobs/:id", server.PutJobIdHandler},
-		{"DELETE", "/jobs/:id", server.DeleteJobIdHandler},
-		{"POST", "/jobs/:id/queue", server.SubmitJobIdHandler},
-		{"PUT", "/jobs/:id/files/*path", server.PutJobIdFileHandler},
-		{"DELETE", "/jobs/:id/files/*path", server.DeleteJobIdFileHandler},
+		{"GET", "/jobs/:id", server.GetJobIDHandler},
+		{"HEAD", "/jobs/:id", server.GetJobIDHandler},
+		{"GET", "/jobs/:id/files/*path", server.GetJobIDFileHandler},
+		{"HEAD", "/jobs/:id/files/*path", server.GetJobIDFileHandler},
+		{"PUT", "/jobs/:id", server.PutJobIDHandler},
+		{"DELETE", "/jobs/:id", server.DeleteJobIDHandler},
+		{"POST", "/jobs/:id/queue", server.SubmitJobIDHandler},
+		{"PUT", "/jobs/:id/files/*path", server.PutJobIDFileHandler},
+		{"DELETE", "/jobs/:id/files/*path", server.DeleteJobIDFileHandler},
 	}
 
 	r := httprouter.New()
