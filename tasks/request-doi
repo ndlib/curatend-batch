@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Use Datacite REST API to request a DOI for an ETD
+
+scriptdir=$(cd $(dirname $0); pwd)
+source "$scriptdir"/conf
+
+cd $gemfile_dir
+
+#Check for ROF file
+# exit with error in none present
+metadata_file=$(ls "$JOBPATH"/metadata-*.rof)
+doi_prefix=$DOI_PREFIX
+
+if [ ! -e "$metadata_file" ]; then
+    echo "No ROF files in job directory"
+    exit 1
+fi
+
+#Filter Out iwork fobject for ETD (gets rid on generic file content)
+
+echo "file is $metadata_file"
+cat $metadata_file | jq --raw-output '.[]|select(.type == "fobject" and .["af-model"] == "Etd")' > $JOBPATH/ETD.rof
+
+#Extract pid and title from ETD.rof
+etd_pid=$(jq --raw-output '.pid' $JOBPATH/ETD.rof | sed "s/und://")
+etd_title=$(jq --raw-output '.metadata."dc:title"' $JOBPATH/ETD.rof)
+etd_pubyear=$(jq --raw-output '.metadata."dc:dateSubmitted"[0]' $JOBPATH/ETD.rof | cut -c 1-4)
+
+#Create request json for Datacite REST API
+cat <<EOF >$JOBPATH/doirequest.json
+{
+  "data": {
+    "id": "$doi_prefix/$etd_pid",
+    "type": "dois",
+    "attributes": {
+      "event": "publish",
+      "doi": "$doi_prefix/$etd_pid",
+      "publisher": "DataCite",
+      "creators": [{
+        "name": "Curate ND"
+      }],
+      "titles": [{
+        "title": "$etd_title"
+      }],
+      "publicationYear": ${etd_pubyear},
+      "types": {
+        "resourceTypeGeneral": "Text"
+      },
+      "url": "https://curate.nd.edu/show/$etd_pid"
+    }
+  }
+}
+EOF
+
+#Make the request for the DOI - a 201 means it was created. Error if otherwise.
+
+retval=$(curl  -k -s -o "$JOBPATH/datacite.json" -w "%{http_code}" -X POST -H "Content-Type: application/vnd.api+json" --user "${DOI_USERNAME}:${DOI_PASSWORD}" -d @${JOBPATH}/doirequest.json https://api.test.datacite.org/dois)
+
+if [ "$retval" != "201" ]; then
+	echo "Error: DOI Request returned code $retval"
+        exit 1
+fi
