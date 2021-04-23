@@ -1,0 +1,28 @@
+name: Curate Batch CI
+
+on:
+  push:
+    branches-ignore: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        go: [ '1.16', '1.15' ]
+      fail-fast: false
+    name: Go ${{ matrix.go }} Test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Run build
+        run: go build
+      - name: Testing
+        run: |
+          cd batchs
+          go test
