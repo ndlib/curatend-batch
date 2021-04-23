@@ -22,13 +22,14 @@ type JobSource interface {
 	FinishJob(job *Job) error
 }
 
-type fileQueue struct {
+// A FileQueue is a JobSource that uses a filesystem as the backing store.
+type FileQueue struct {
 	// the path to the base directory holding our state directories
 	basepath string
 }
 
-// Return the next job available on the file system
-func (fq *fileQueue) NextJob() (*Job, error) {
+// NextJob returns the next job available on the file system. If there is no job available, it will block until a job appears.
+func (fq *FileQueue) NextJob() (*Job, error) {
 	for {
 		job, err := fq.scanAndLoad()
 		if job != nil || err != nil {
@@ -41,8 +42,8 @@ func (fq *fileQueue) NextJob() (*Job, error) {
 	}
 }
 
-// Save the given job
-func (fq *fileQueue) FinishJob(jb *Job) error {
+// FinishJob moves a job to either the success or error directories depending on the job's state.
+func (fq *FileQueue) FinishJob(jb *Job) error {
 	var err2 error
 	var sourceDir = fq.findJobDir(jb.name)
 	err := fq.save(jb)
@@ -67,7 +68,7 @@ func (fq *fileQueue) FinishJob(jb *Job) error {
 
 // is the given job in any of the directories?
 // returns the directory name, or "" if not found
-func (fq *fileQueue) findJobDir(name string) string {
+func (fq *FileQueue) findJobDir(name string) string {
 
 	for _, dir := range subdirs {
 		dname := path.Join(fq.basepath, dir, name)
@@ -80,7 +81,7 @@ func (fq *fileQueue) findJobDir(name string) string {
 }
 
 // save the job to disk and close any open files inside the job structure
-func (fq *fileQueue) save(jb *Job) error {
+func (fq *FileQueue) save(jb *Job) error {
 	defer func() {
 		if jb.logfile != nil {
 			jb.logfile.Close()
@@ -114,7 +115,7 @@ func (fq *fileQueue) save(jb *Job) error {
 // If the error was related to loading a job, will return a non-nil pointer to
 // a job and an error. The job is not moved to the error state.
 // returns a nil Job and a nil error if there is nothing left to process.
-func (fq *fileQueue) scanAndLoad() (*Job, error) {
+func (fq *FileQueue) scanAndLoad() (*Job, error) {
 	dentries, err := fq.listJobs("queue")
 	if err != nil {
 		return nil, err
@@ -141,7 +142,7 @@ const (
 
 // watchDir watches the directory dirname and returns when either files are
 // added or there is an error.
-func (fq *fileQueue) watchDir(dirname string) error {
+func (fq *FileQueue) watchDir(dirname string) error {
 	dname := path.Join(fq.basepath, dirname)
 	info, err := os.Stat(dname)
 	if err != nil {
@@ -169,7 +170,7 @@ func (fq *fileQueue) watchDir(dirname string) error {
 // return an error. If there is an error loading, that is
 // passed back, but the state of the job is not changed.
 // The control needs explicitly move the job into an error state.
-func (fq *fileQueue) load(dir, name string) (*Job, error) {
+func (fq *FileQueue) load(dir, name string) (*Job, error) {
 	var err error
 	jobpath := path.Join(fq.basepath, dir, name)
 	result := &Job{
@@ -226,10 +227,10 @@ func loadWebhooks(jb *Job) error {
 	return err
 }
 
-// NewFileQueue creates a new FileQueue having its state
-// directories at basepath.
-func NewFileQueue(basepath string) *fileQueue {
-	return &fileQueue{basepath: basepath}
+// NewFileQueue creates a new FileQueue having its state directories at
+// basepath.
+func NewFileQueue(basepath string) *FileQueue {
+	return &FileQueue{basepath: basepath}
 }
 
 var (
@@ -242,8 +243,9 @@ var (
 	}
 )
 
-// Initialize the given file queue's directories
-func (fq *fileQueue) Init() error {
+// Init ensures all the required subdirectories exist, and returns
+// any jobs in the processing directory to the queue.
+func (fq *FileQueue) Init() error {
 	// do the directories exist?
 	for _, subdir := range subdirs {
 		err := os.MkdirAll(path.Join(fq.basepath, subdir), 0744)
@@ -267,13 +269,13 @@ func (fq *fileQueue) Init() error {
 }
 
 // list jobs in a given status directory
-func (fq *fileQueue) listJobs(dir string) ([]os.FileInfo, error) {
+func (fq *FileQueue) listJobs(dir string) ([]os.FileInfo, error) {
 	sourcedir := path.Join(fq.basepath, dir)
 	return ioutil.ReadDir(sourcedir)
 }
 
 // move a job between status directories
-func (fq *fileQueue) move(name, srcdir, dstdir string) error {
+func (fq *FileQueue) move(name, srcdir, dstdir string) error {
 	src := path.Join(fq.basepath, srcdir, name)
 	dst := path.Join(fq.basepath, dstdir, name)
 	return os.Rename(src, dst)
@@ -281,7 +283,7 @@ func (fq *fileQueue) move(name, srcdir, dstdir string) error {
 
 // Move a job between status directories, possibly renaming if there
 // is a directory inside dstdir having the same name as `name`.
-func (fq *fileQueue) moveRename(name, srcdir, dstdir string) error {
+func (fq *FileQueue) moveRename(name, srcdir, dstdir string) error {
 	// If we first check for the existence of a file and then
 	// move the directory in two steps, there is a possibility
 	// of a race condition, so we just keep trying to move

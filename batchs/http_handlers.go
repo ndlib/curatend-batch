@@ -12,7 +12,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// Writes the version number to the given writer.
+// WelcomeHandler writes the version number as a response.
 func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	// if it's a GET, copy the data into the response- if it's a HEAD, don't
 	if request.Method == "HEAD" {
@@ -22,7 +22,7 @@ func (server *RESTServer) WelcomeHandler(writer http.ResponseWriter, request *ht
 }
 
 // GetJobsHandler handles requests to GET /jobs
-func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var jobs []JobInfo
 
 	// subdirs contains a list of all the batchs directories
@@ -31,7 +31,7 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 
 		// list jobs in each directory, adding them to jobs array
 
-		inThisDir, err := s.QueuePath.listJobs(dir)
+		inThisDir, err := server.QueuePath.listJobs(dir)
 
 		if err != nil {
 			w.WriteHeader(500)
@@ -57,17 +57,16 @@ func (s *RESTServer) GetJobsHandler(w http.ResponseWriter, r *http.Request, ps h
 	enc.Encode(jobs)
 }
 
-// GetJobIdHandler handles requests to GET /jobs/:id
+// GetJobIDHandler handles requests to GET /jobs/:id
 // Returns 404 if job id not found
 //         200 + Json { "Name": id, "Status": [ success, error, queue, processing, ready ] }
-
-func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) GetJobIDHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	var response JobInfo
 
 	id := ps.ByName("id")
 
-	dir := s.QueuePath.findJobDir(id)
+	dir := server.QueuePath.findJobDir(id)
 
 	if dir == "" {
 		w.WriteHeader(404)
@@ -91,19 +90,19 @@ func (s *RESTServer) GetJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 	enc.Encode(response)
 }
 
+// A JobInfo contains the information on jobs that we send to clients.
 type JobInfo struct {
 	Name, Status string
 }
 
-// PutJobIdHandler handles requests to PUT /jobs/:id
+// PutJobIDHandler handles requests to PUT /jobs/:id
 // Returns 200 if id directory can be created under data
 //         403 if it cannot (already exists)
-
-func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) PutJobIDHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 
-	jobPath := path.Join(s.QueuePath.basepath, "data", id)
+	jobPath := path.Join(server.QueuePath.basepath, "data", id)
 
 	if _, err := os.Stat(jobPath); err == nil {
 		w.WriteHeader(403)
@@ -119,20 +118,19 @@ func (s *RESTServer) PutJobIdHandler(w http.ResponseWriter, r *http.Request, ps 
 	}
 }
 
-// DeleteJobIdHandler handles requests to DELETE /jobs/:id
+// DeleteJobIDHandler handles requests to DELETE /jobs/:id
 // Returns 200 if id directory was deleted in one or more of [success, error, data], or doesn't exist
 //         500 if something went wrong
-
-func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) DeleteJobIDHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 
 	// Remove job id wherever it's found
 
-	dir := s.QueuePath.findJobDir(id)
+	dir := server.QueuePath.findJobDir(id)
 
 	if dir != "" {
-		jobPath := path.Join(s.QueuePath.basepath, dir, id)
+		jobPath := path.Join(server.QueuePath.basepath, dir, id)
 
 		err := os.RemoveAll(jobPath)
 
@@ -143,20 +141,19 @@ func (s *RESTServer) DeleteJobIdHandler(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
-// SubmitJobIdHandler handles requests to POST /jobs/:id
+// SubmitJobIDHandler handles requests to POST /jobs/:id
 // Returns 200 if id directory was queued from one  of [data, error, success],  in that order
 //         500 if something went wrong
 //         404 if the job id was not found  in any of the searched directories
-
-func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) SubmitJobIDHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 
-	dir := s.QueuePath.findJobDir(id)
+	dir := server.QueuePath.findJobDir(id)
 
 	switch dir {
 	case "data", "error", "success":
-		err := s.QueuePath.move(id, dir, "queue")
+		err := server.QueuePath.move(id, dir, "queue")
 		if err != nil {
 			w.WriteHeader(500)
 			fmt.Fprintln(w, err.Error())
@@ -172,15 +169,14 @@ func (s *RESTServer) SubmitJobIdHandler(w http.ResponseWriter, r *http.Request, 
 
 }
 
-// PutJobIdFileHandler implements PUT /jobs/:id/files/*path
+// PutJobIDFileHandler implements PUT /jobs/:id/files/*path
 // Returns 404 if data directory for given job id does not exist
-
-func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) PutJobIDFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 	filepath := ps.ByName("path")
 	// from here on, fullUploadPath is the file target destination
-	fullUploadPath := s.findFile(w, id, filepath)
+	fullUploadPath := server.findFile(w, id, filepath)
 	if fullUploadPath == "" {
 		return
 	}
@@ -212,15 +208,14 @@ func (s *RESTServer) PutJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 	}
 }
 
-// DeleteJobIdFileHandler implements DELETE /jobs/:id/files/*path
+// DeleteJobIDFileHandler implements DELETE /jobs/:id/files/*path
 // Returns 404 if data directory for given job id does not exist
-
-func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) DeleteJobIDFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 	filepath := ps.ByName("path")
 	// from here on, fullUploadPath is the file target destination
-	fullDeletePath := s.findFile(w, id, filepath)
+	fullDeletePath := server.findFile(w, id, filepath)
 	if fullDeletePath == "" {
 		return
 	}
@@ -232,15 +227,14 @@ func (s *RESTServer) DeleteJobIdFileHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-// GetJobIdFileHandler implements GET /jobs/:id/files/*path
+// GetJobIDFileHandler implements GET /jobs/:id/files/*path
 // Returns 404 if job directory, or desired file for given job, does not exist
-
-func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (server *RESTServer) GetJobIDFileHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id := ps.ByName("id")
 	filepath := ps.ByName("path")
 	// from here on, fullDownloadPath is the file target destination
-	fullDownloadPath := s.findFile(w, id, filepath)
+	fullDownloadPath := server.findFile(w, id, filepath)
 	if fullDownloadPath == "" {
 		return
 	}
@@ -295,7 +289,7 @@ func (s *RESTServer) GetJobIdFileHandler(w http.ResponseWriter, r *http.Request,
 // return errors directly to w as found. It does not allow any processing on
 // jobs which are in the queue or processing directory. An empty string
 // is returned if an error message is written to w.
-func (s *RESTServer) findFile(w http.ResponseWriter, id, filepath string) string {
+func (server *RESTServer) findFile(w http.ResponseWriter, id, filepath string) string {
 	filepath = path.Clean(filepath)
 
 	if filepath == "." {
@@ -304,7 +298,7 @@ func (s *RESTServer) findFile(w http.ResponseWriter, id, filepath string) string
 		return ""
 	}
 
-	dir := s.QueuePath.findJobDir(id)
+	dir := server.QueuePath.findJobDir(id)
 	switch dir {
 	case "queue", "processing":
 		w.WriteHeader(409)
@@ -314,6 +308,6 @@ func (s *RESTServer) findFile(w http.ResponseWriter, id, filepath string) string
 		w.WriteHeader(404)
 		return ""
 	default:
-		return path.Join(s.QueuePath.basepath, dir, id, filepath)
+		return path.Join(server.QueuePath.basepath, dir, id, filepath)
 	}
 }
