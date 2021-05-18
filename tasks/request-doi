@@ -55,7 +55,7 @@ EOF
 
 #Make the request for the DOI - a 201 means it was created. Error if otherwise.
 
-retval=$(curl  -k -s -o "$JOBPATH/datacite.json" -w "%{http_code}" -X POST -H "Content-Type: application/vnd.api+json" --user "${DOI_USERNAME}:${DOI_PASSWORD}" -d @${JOBPATH}/doirequest.json https://api.test.datacite.org/dois)
+retval=$(curl  -k -s -o "$JOBPATH/datacite.json" -w "%{http_code}" -X POST -H "Content-Type: application/vnd.api+json" --user "${DOI_USERNAME}:${DOI_PASSWORD}" -d @${JOBPATH}/doirequest.json ${DOI_ENDPOINT})
 
 if [ "$retval" != "201" ]; then
 	echo "Error: DOI Request returned code $retval"
