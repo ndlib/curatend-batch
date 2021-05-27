@@ -26,6 +26,7 @@ cat $metadata_file | jq --raw-output '.[]|select(.type == "fobject" and .["af-mo
 etd_pid=$(jq --raw-output '.pid' $JOBPATH/ETD.rof | sed "s/und://")
 etd_title=$(jq --raw-output '.metadata."dc:title"' $JOBPATH/ETD.rof)
 etd_pubyear=$(jq --raw-output '.metadata."dc:dateSubmitted"[0]' $JOBPATH/ETD.rof | cut -c 1-4)
+etd_creator=$(jq --raw-output '.metadata."dc:creator"[0]' $JOBPATH/ETD.rof)
 
 #Create request json for Datacite REST API
 cat <<EOF >$JOBPATH/doirequest.json
@@ -36,9 +37,9 @@ cat <<EOF >$JOBPATH/doirequest.json
     "attributes": {
       "event": "publish",
       "doi": "$doi_prefix/$etd_pid",
-      "publisher": "DataCite",
+      "publisher": "Curate ND",
       "creators": [{
-        "name": "Curate ND"
+        "name": "$etd_creator"
       }],
       "titles": [{
         "title": "$etd_title"
