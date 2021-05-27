@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: "Batch Ingest API for CurateND"
   description: "This API is intended to provide a convenient, non-file system based, way for other services to create and check on batch jobs"
-  version: "1.1.6"
+  version: "1.2.3"
 externalDocs:
   description: "Source code documentation here"
   url: "https://github.com/ndlib/curatend-batch/blob/master/api.md"
@@ -21,7 +21,7 @@ paths:
             $ref: '#/definitions/Version'
           examples:
             text/plain:
-              "CurateND Batch (1.1.6)"
+              "CurateND Batch (1.2.3)"
   /jobs:
     get:
       summary: Returns a JSON array listing the names of all the jobs
