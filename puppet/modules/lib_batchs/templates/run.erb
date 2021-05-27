@@ -1,6 +1,0 @@
-#!/bin/bash
-
-exec 2>&1
-exec /sbin/chpst -u app <%= @batchs_root %>/bin/curatend-batch \
-     --queue <%= @batch_queue_dir %> \
-     --tasks <%= @batchs_root %>/tasks
