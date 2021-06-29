@@ -10,14 +10,15 @@ The only way to create an old style collection is to create an ROF file
 describing it, and then run the file through the batch ingest.
 
 The base collection object follows. Copy it and then update the `rights`,
-`properties`, `dc:title`, `dc:description`, `content-file`, and
+'hydramata-rel:hasEditor', `properties`, `dc:title`, `dc:description`, `content-file`, and
 `thumbnail-file`. The content and thumbnail datastreams is an image associated
 with the collection: the content is the large version and the thumbnail is the
 small.
 
     {
-      "type": "fobject",
+      "type": "Work",
       "af-model": "Collection",
+      "
       "rights": {
         "read-groups": [
           "public"
@@ -26,6 +27,7 @@ small.
           "dbrower"
         ]
       },
+      "hydramata-rel:hasEditor": "dbrower"
       "properties": "<fields>\n<depositor>dbrower</depositor>\n<owner>dbrower</owner>\n</fields>\n",
       "properties-meta": {
         "mime-type": "text/xml"

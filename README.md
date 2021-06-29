@@ -18,10 +18,10 @@ progress, and we may move to a standard work-queue system in the future.
 
 # Format of this Repository
 
-This repository is deployed using capistrano and puppet, and, since it is
-"rubyish", it also invokes bundler. The deploy then compiles the Go
-code, which is in a subdirectory, and installs that.  Finally the puppet
-scripts run and setup the environment, and install the configuration files
+This repository is deployed using capistrano and ansible, and, since it is
+"rubyish", it also invokes bundler. The Go
+code, which is in a subdirectory, is compiled and deployed separately usiong AWS codebuild.
+The ansible scripts run and setup the environment, and install the configuration files
 (e.g. start the Go service at startup).
 
 The Go service will monitor a directory for new files. It will spawn a
